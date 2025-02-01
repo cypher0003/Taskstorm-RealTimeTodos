@@ -1,0 +1,22 @@
+{
+  "name": "relaychat",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@fastify/cors": "^10.0.2",
+    "@fastify/jwt": "^9.0.3",
+    "@fastify/websocket": "^11.0.2",
+    "better-sqlite3": "^11.8.1",
+    "fastify": "^5.2.1",
+    "fastify-plugin": "^5.0.1",
+    "ioredis": "^5.4.2",
+    "js-sha256": "^0.11.0",
+    "uuid": "^11.0.5"
+  }
+}
