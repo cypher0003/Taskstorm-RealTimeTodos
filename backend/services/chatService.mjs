@@ -1,87 +1,97 @@
-import { sendToRedis, getMessages, getChatKey } from "../logik/chatLogik.mjs";
+import {
+    sendToRedis,
+    getMessages,
+    sendCachedTodos,
+    subscribeToMessages,
+} from "../logik/chatLogik.mjs";
+
 import { sendMessageOptions, getMessagesOptions } from "../schemas/chatSchema.mjs";
 
-const clients = {}; 
-
 export async function chatService(fastify, options) {
+    const { redisPublisher, redisSubscriber } = fastify.redis;
+    const clients = {}; 
     
     fastify.post("/send", sendMessageOptions, async (request, reply) => {
         try {
             const currentUser = request.user;
             const sender_id = currentUser.id;
-            const { receiver_id, message } = request.body;
+            const { receiver_id, todo } = request.body;
 
-            if (!sender_id || !receiver_id || !message) {
+            if (!sender_id || !receiver_id || !todo) {
                 return reply.status(400).send({ error: "Fehlende Parameter" });
             }
 
-            await sendToRedis(sender_id, receiver_id, message); 
-            return reply.status(201).send({ message: "Gesendet!" });
+            await sendToRedis(fastify.db, redisPublisher, sender_id, receiver_id, todo);
+            return reply.status(201).send({ todo: "Gesendet!" });
 
         } catch (error) {
-            console.error("❌ Fehler beim Senden der Nachricht:", error);
+            console.error("Fehler beim Senden der Nachricht:", error);
             return reply.status(500).send({ error: "Interner Serverfehler" });
         }
     });
 
-   fastify.get('/ws/messages/:userId', { websocket: true }, (connection, req) => {
-    const { userId } = req.params;
-    if (!userId) {
-        console.log("❌ Fehler: Keine User-ID übergeben!");
-        connection.close();
-        return;
-    }
-
-    console.log("WebSocket verbunden für User:", userId);
-    const redisSubscriber = fastify.redis.redisSubscriber;
-    clients[userId] = connection;
-
-    const chatKeyPattern1 = `messages:chat_${userId}_*`; 
-    const chatKeyPattern2 = `messages:chat_*_${userId}`;  
-
-    redisSubscriber.psubscribe(chatKeyPattern1, (err, count) => {
-        if (err) {
-            console.error(`❌ Fehler beim Abonnieren des Redis-Channels für User ${userId}:`, err);
+   
+    fastify.get('/ws/tasks/:userId', { websocket: true }, async (connection, req) => {
+        const { userId } = req.params;
+        if (!userId) {
+            console.log("Fehler: Keine User-ID übergeben!");
             connection.close();
             return;
         }
-        console.log(`✅ WebSocket-Client ${userId} hört auf ${count} Channels.`);
+
+        console.log(`WebSocket verbunden für Benutzer ${userId}`);
+        clients[userId] = connection;
+
+        // 🔍 Online-Status in Redis setzen
+        await redisPublisher.set(`user:${userId}:status`, "online", "EX", 600);
+
+        // 📩 Falls ungelesene Nachrichten existieren, senden
+        await sendCachedTodos(redisPublisher, userId, connection);
+
+       
+        const chatKeyPattern1 = `tasks:taskSpace_${userId}_*`; 
+        const chatKeyPattern2 = `tasks:taskSpace_*_${userId}`;
+
+        redisSubscriber.psubscribe(chatKeyPattern1);
+        redisSubscriber.psubscribe(chatKeyPattern2);
+
+        
+
+        console.log(` WebSocket-Client ${userId} hört auf Nachrichten aus: ${chatKeyPattern1}, ${chatKeyPattern2}`);
+
+        
+        subscribeToMessages(redisSubscriber, clients);
+
+        console.log("subscribing done...")
+
+        connection.on("close", async () => {
+            console.log(`WebSocket geschlossen für Benutzer ${userId}`);
+            delete clients[userId];
+
+            redisSubscriber.punsubscribe(chatKeyPattern1);
+            redisSubscriber.punsubscribe(chatKeyPattern2);
+
+          
+            await redisPublisher.del(`user:${userId}:status`);
+        });
     });
 
-    redisSubscriber.psubscribe(chatKeyPattern2, (err, count) => {
-        if (err) {
-            console.error(`❌ Fehler beim Abonnieren des Redis-Channels für User ${userId}:`, err);
-            connection.close();
-            return;
-        }
-        console.log(`✅ WebSocket-Client ${userId} hört auf ${count} Channels.`);
-    });
-
-    // Nachrichten vom Redis-Channel empfangen und an den WebSocket senden
-    redisSubscriber.on("pmessage", (pattern, channel, message) => {
-        console.log(`📢 Redis-Nachricht empfangen: ${message}`);
-
+   
+    fastify.get("/messages/:userA/:userB", getMessagesOptions, async (request, reply) => {
         try {
-            const parsedMessage = JSON.parse(message);
-            const receiverId = parsedMessage.receiver_id;
-            if (clients[receiverId]) {
-                clients[receiverId].send(JSON.stringify(parsedMessage)); // Nachricht an WebSocket-Client senden
-                console.log(`📨 Nachricht an WebSocket-Client ${receiverId} gesendet.`);
+            const {userA, userB} = request.params;
+            const chatHistory = await getMessages(fastify.db, userA, userB)
+
+            if(!chatHistory)
+            {
+                throw new Error("No Chat available")
             }
+
+            reply.code(201).send({items: chatHistory})
+
         } catch (error) {
-            console.error("❌ Fehler beim Verarbeiten der Redis-Nachricht:", error.message);
+            console.error("❌ Fehler beim Abrufen der Nachrichten:", error);
+            return reply.status(500).send({ error: "Interner Serverfehler" });
         }
     });
-
-    // WebSocket schließen und Redis unsubscriben
-    connection.on("close", () => {
-        console.log(`❌ WebSocket geschlossen für User ${userId}`);
-        delete clients[userId];
-        redisSubscriber.punsubscribe(chatKeyPattern1); // Abbestellen des Redis-Channel für userId als ersten Teilnehmer
-        redisSubscriber.punsubscribe(chatKeyPattern2); // Abbestellen des Redis-Channel für userId als zweiten Teilnehmer
-    });
-});
-
-    
 }
-

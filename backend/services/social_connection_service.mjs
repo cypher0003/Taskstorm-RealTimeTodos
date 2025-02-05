@@ -10,6 +10,7 @@ export async function social_connection_service(fastify, options) {
     fastify.post("/addFriend", sendFriendRequestOptions, async(request, reply) =>{
         try{
             const currentUser = request.user;
+            console.log("CCurrent User: ",currentUser)
             const {username} = request.body;
             console.log("user from body:", username)
             console.log("accessed service...")

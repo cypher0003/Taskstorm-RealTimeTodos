@@ -11,17 +11,22 @@ import { messageSchema } from "./schemas/chatSchema.mjs";
 import { chatService } from "./services/chatService.mjs";
 import fastifyCors from "@fastify/cors";
 import fastifyWebsocket from "@fastify/websocket";
-
-
-
+import fastifyMultipart from "@fastify/multipart";
+import fastifyStatic from "@fastify/static";
+import path from 'path'
 
 const fastify = Fastify({
     logger: true,
   });
 
+  fastify.register(fastifyMultipart)
   fastify.register(fastifyWebsocket)
   fastify.register(fastifyCors)
 
+  fastify.register(fastifyStatic, {
+    root: path.join(process.cwd(), "./uploads/profile_pictures"), 
+    prefix: "/uploads/profile_pictures/", 
+});
   fastify.decorate("redis", {redisPublisher, redisSubscriber})
 
 
@@ -43,20 +48,26 @@ const fastify = Fastify({
     const publicRoutes = [
         "/user/createUser",
         "/user/login",
-        "/ws/messages"
+        "/ws/messages",
+        "/uploads/profile_pictures",
+        "/favicon.ico"
     ];
 
-    console.log("📢 Request erhalten:", request.url);
+    console.log("Request erhalten:", request.url);
 
-    // **WebSockets explizit erkennen und Authentifizierung überspringen**
+    if (request.url.startsWith("/uploads/profile_pictures/")) {
+      console.log("📂 Statische Datei erkannt, Zugriff erlaubt:", request.url);
+      return;
+  }
+    
     if (request.headers.upgrade?.toLowerCase() === "websocket") {
-        console.log("✅ WebSocket erkannt, Authentifizierung übersprungen:", request.url);
+        console.log("WebSocket erkannt, Authentifizierung übersprungen:", request.url);
         return;
     }
 
-    // **Prüfen, ob die URL zu einer öffentlichen Route gehört**
+    
     if (isPublicRoute(request.url, publicRoutes)) {
-        console.log("✅ Öffentliche Route erkannt:", request.url);
+        console.log("Öffentliche Route erkannt:", request.url);
         return;
     }
 
@@ -71,7 +82,7 @@ const fastify = Fastify({
         request.user = user;
         console.log("🔓 Authentifizierung erfolgreich:", request.user.id);
     } catch (err) {
-        console.error("❌ Unauthorized:", err.message);
+        console.error("Unauthorized:", err.message);
         reply.code(401).send({ error: "401 Unauthorized" });
     }
 });

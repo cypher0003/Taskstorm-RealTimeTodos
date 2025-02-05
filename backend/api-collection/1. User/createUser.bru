@@ -1,0 +1,26 @@
+meta {
+  name: createUser
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/user/createUser
+  body: multipartForm
+  auth: none
+}
+
+body:json {
+  {
+    "username": "d",
+    "email":"c@gmx.de",
+    "password": "test123"
+  }
+}
+
+body:multipart-form {
+  username: kevin
+  email: kevin@test
+  password: 123
+  profile_picture: @file(C:\Users\Kevin\Pictures\wallpaper\31d3cfd2-99e2-46e2-baeb-502616bf3a94.webp)
+}

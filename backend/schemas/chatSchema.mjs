@@ -5,7 +5,8 @@ export const messageSchema = {
         id: { type: "string", format: "uuid" },
         sender_id: { type: "string" },
         receiver_id: { type: "string" },
-        message: { type: "string", minLength: 1 },
+        todo: { type: "string", minLength: 1 },
+        todoStatus: { type: "string" },
     },
     
 };
@@ -16,7 +17,7 @@ export const sendMessageOptions = {
             type: "object",
             properties: {
                 receiver_id: { type: "string" },
-                message: { type: "string", minLength: 1 }
+                todo: { type: "string", minLength: 1 }
             },
             
         },
@@ -24,7 +25,7 @@ export const sendMessageOptions = {
             201: {
                 type: "object",
                 properties: {
-                    message: { $ref: "messageSchema#" }
+                    todo: { $ref: "messageSchema#" }
                 }
             }
         }

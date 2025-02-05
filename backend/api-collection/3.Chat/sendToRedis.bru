@@ -1,0 +1,23 @@
+meta {
+  name: sendToRedis
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/chat/send
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkxY2Y4YzhlLTQyOTAtNDBkYy1iOTg1LThkY2Q1NTAyNjM1MiIsInVzZXJuYW1lIjoia2V2aW4iLCJlbWFpbCI6ImtldmluQHRlc3QiLCJwcm9maWxlX3BpY3R1cmUiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAvdXBsb2Fkcy9wcm9maWxlX3BpY3R1cmVzLzMxZDNjZmQyLTk5ZTItNDZlMi1iYWViLTUwMjYxNmJmM2E5NC53ZWJwIiwiY3JlYXRpb25fZGF0ZSI6IjIwMjUtMDItMDUiLCJpYXQiOjE3Mzg3NzIyNzAsImV4cCI6MTc0NDc3MjIxMH0.xWMGHQazYoDcU16ShgpSGUsFzE-GDMqYUOMtCUIIDP8
+}
+
+body:json {
+  {
+      "receiver_id": "dd034795-268f-47c2-96ac-386b78ca175e",
+      "todo": "task 3"
+  }
+  
+}

@@ -1,0 +1,21 @@
+meta {
+  name: sendFriendRequest
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/friends/addFriend
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImRkMDM0Nzk1LTI2OGYtNDdjMi05NmFjLTM4NmI3OGNhMTc1ZSIsInVzZXJuYW1lIjoiZG9yaWFuIiwiZW1haWwiOiJkb3JpYW5AdGVzdCIsInByb2ZpbGVfcGljdHVyZSI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC91cGxvYWRzL3Byb2ZpbGVfcGljdHVyZXMvMzFkM2NmZDItOTllMi00NmUyLWJhZWItNTAyNjE2YmYzYTk0LndlYnAiLCJjcmVhdGlvbl9kYXRlIjoiMjAyNS0wMi0wNSIsImlhdCI6MTczODc3MTUzNywiZXhwIjoxNzQ0NzcxNDc3fQ.lpsEfEf-pu4YC6a_GtUGGNxZhz3o33Muk9tlMsI1lN8
+}
+
+body:json {
+  {
+    "username": "kevin"
+  }
+}
