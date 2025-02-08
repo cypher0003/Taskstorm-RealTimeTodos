@@ -25,16 +25,38 @@ CREATE TABLE IF NOT EXISTS Friendships (
 `
 
 const createTodoTable = `
-    CREATE TABLE IF NOT EXISTS Todo (
-        id TEXT PRIMARY KEY,
-        sender_id TEXT NOT NULL,
-        receiver_id TEXT NOT NULL,
-        todo TEXT NOT NULL,
-        todoStatus TEXT NOT NULL,
-        timestamp DATE,
-        FOREIGN KEY (sender_id) REFERENCES Users(id),
-        FOREIGN KEY (receiver_id) REFERENCES Users(id)
-    )`;
+  CREATE TABLE IF NOT EXISTS Todo (
+      id TEXT PRIMARY KEY,
+      workspace_id TEXT NOT NULL,
+      creator_id TEXT NOT NULL,
+      todo TEXT NOT NULL,
+      status TEXT NOT NULL, 
+      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (workspace_id) REFERENCES Workspaces(id),
+      FOREIGN KEY (creator_id) REFERENCES Users(id)
+  );
+`;
+
+const createWorkspaceTableStatement = `
+    CREATE TABLE IF NOT EXISTS Workspaces (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      admin_id TEXT NOT NULL,
+      creation_date DATE DEFAULT CURRENT_DATE,
+      FOREIGN KEY (admin_id) REFERENCES Users(id)
+    );
+  `;
+
+  const createWorkspaceUsersTableStatement = `
+  CREATE TABLE IF NOT EXISTS WorkspaceUsers (
+    id TEXT PRIMARY KEY,
+    workspace_id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    FOREIGN KEY (workspace_id) REFERENCES Workspaces(id),
+    FOREIGN KEY (user_id) REFERENCES Users(id)
+  );
+`;
+
 
 
 export function dbConnector(fastify, options, next) {
@@ -42,6 +64,8 @@ export function dbConnector(fastify, options, next) {
     db.exec(createUserTableStatement);
     db.exec(createFriendshipTableStatement);
     db.exec(createTodoTable);
+    db.exec(createWorkspaceTableStatement);
+    db.exec(createWorkspaceUsersTableStatement);
 
   
     fastify.decorate("db", db);

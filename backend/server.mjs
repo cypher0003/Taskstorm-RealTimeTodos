@@ -22,7 +22,6 @@ const fastify = Fastify({
   fastify.register(fastifyMultipart)
   fastify.register(fastifyWebsocket)
   fastify.register(fastifyCors)
-
   fastify.register(fastifyStatic, {
     root: path.join(process.cwd(), "./uploads/profile_pictures"), 
     prefix: "/uploads/profile_pictures/", 
