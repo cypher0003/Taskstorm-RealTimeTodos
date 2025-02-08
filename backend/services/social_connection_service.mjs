@@ -44,7 +44,7 @@ export async function social_connection_service(fastify, options) {
         }
         
 
-    })
+    });
 
     fastify.get("/getFriends", searchFriendsOfUserOptions, async (request, reply) => {
         try {
