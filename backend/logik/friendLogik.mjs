@@ -108,5 +108,3 @@ export async function searchFriendsOfUser(db, userId) {
     `;
     return db.prepare(query).all(userId, userId);
 }
-
- 
