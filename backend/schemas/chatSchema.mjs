@@ -5,10 +5,10 @@ export const messageSchema = {
         id: { type: "string", format: "uuid" },
         sender_id: { type: "string" },
         receiver_id: { type: "string" },
-        todo: { type: "string", minLength: 1 },
-        todoStatus: { type: "string" },
+        message: { type: "string", minLength: 1 }, 
+        created_at: { type: "string", format: "date-time" }  
     },
-    
+    required: ["id", "sender_id", "receiver_id", "message", "created_at"]
 };
 
 export const sendMessageOptions = {
@@ -17,21 +17,20 @@ export const sendMessageOptions = {
             type: "object",
             properties: {
                 receiver_id: { type: "string" },
-                todo: { type: "string", minLength: 1 }
+                message: { type: "string", minLength: 1 }
             },
-            
+            required: ["receiver_id", "message"]
         },
         response: {
             201: {
                 type: "object",
                 properties: {
-                    todo: { $ref: "messageSchema#" }
+                    message: { $ref: "messageSchema#" }
                 }
             }
         }
     }
 };
-
 
 export const getMessagesOptions = {
     schema: {

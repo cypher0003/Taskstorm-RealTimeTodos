@@ -7,7 +7,7 @@ export function userModel(username, password, email, profile_picture = null) {
         username,
         email,
         password: sha256(password),
-        profile_picture
-
+        profile_picture,
+        created_at: new Date().toISOString()
     }
 }

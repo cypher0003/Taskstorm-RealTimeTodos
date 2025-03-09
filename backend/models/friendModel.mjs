@@ -7,6 +7,7 @@ export function friendModel (sender_id, receiver_id )
         id: v4(),
         sender_id,
         receiver_id,
-        status: requestStatus.pending
+        status: requestStatus.pending,
+        created_at: new Date().toISOString()
     }
 }
