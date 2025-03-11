@@ -13,11 +13,12 @@ export const friendSchema = {
   export const sendFriendRequestOptions = {
     schema: {
       body: {
-        type: "object",
-        properties: {
-          username: { type: "string" },
-        },
-        required: ["username"],
+          type: "object",
+          properties: {
+              username: { type: "string" }
+
+          },
+          required: ["username"]
       },
       response: {
         201: {
@@ -61,9 +62,11 @@ export const friendSchema = {
             properties: {
               id: { type: "string" },
               username: { type: "string" },
+
               email: { type: "string" },
             },
             required: ["id", "username", "email"],
+
           },
         },
         401: {

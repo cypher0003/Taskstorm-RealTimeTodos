@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS Friendships (
   id TEXT PRIMARY KEY,
   sender_id TEXT NOT NULL,
   receiver_id TEXT NOT NULL,
-  status TEXT DEFAULT 'pending',
+  status TEXT DEFAULT 'PENDING',
   timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (sender_id) REFERENCES Users (id),
   FOREIGN KEY (receiver_id) REFERENCES Users (id)

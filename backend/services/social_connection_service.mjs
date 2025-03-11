@@ -1,10 +1,6 @@
-import { sendFriendRequest } from "../logik/friendLogik.mjs";
-import { sendFriendRequestOptions } from "../schemas/friendSchema.mjs";
-import { answerFriendRequestOptions } from "../schemas/friendSchema.mjs";
-import { answerRequest } from "../logik/friendLogik.mjs";
-import { searchFriendsOfUser } from "../logik/friendLogik.mjs";
-import { searchFriendsOfUserOptions } from "../schemas/friendSchema.mjs";
 
+import { sendFriendRequest, answerRequest, searchFriendsOfUser, findAllFriendRequests } from "../logik/friendLogik.mjs";
+import { sendFriendRequestOptions, answerFriendRequestOptions, searchFriendsOfUserOptions } from "../schemas/friendSchema.mjs";
 
 export async function social_connection_service(fastify, options) {
     fastify.post("/addFriend", sendFriendRequestOptions, async(request, reply) =>{
@@ -61,5 +57,19 @@ export async function social_connection_service(fastify, options) {
             return reply.status(500).send({ error: "Interner Serverfehler" });
         }
     });
-    
+
+
+    fastify.get("/getFriendRequests", async (request, reply) => {
+        try {
+            const currentUser = request.user;
+            const friendRequests = await findAllFriendRequests(fastify.db, currentUser.id);
+            return reply.status(200).send(friendRequests);
+        } catch (error) {
+            console.error("Fehler beim Abrufen der Freundschaftsanfragen:", error);
+            return reply.status(500).send({ error: "Interner Serverfehler" });
+        }
+    });
+
+
 }
+

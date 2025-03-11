@@ -1,6 +1,8 @@
 import { todoModel } from "../models/todoModel.mjs";
 import { workSpaceModel } from "../models/workSpaceModel.mjs";
 
+import {  cacheWorkspaceTodos, getCachedWorkspaceTodos, cacheWorkspaceMembers, getCachedWorkspaceMembers} from "../database/redis.mjs";
+import { workSpaceToUserModel } from "../models/workSpaceModel.mjs"
 
 export function getWorkspaceChannel(workspaceId) {
     return `workspace:${workspaceId}`;
@@ -68,36 +70,48 @@ export function subscribeToMessages(redis, workspaceClients) {
 }
 
 export async function createWorkspace(db, name, admin_id) {
-    console.log("trying to create Workspace");
-    try
-    {
-        const newWorkspace = workSpaceModel(name, admin_id)
 
-        if(!newWorkspace)
-        {
-            console.log("workspace couldnt be created check inputs")
-            throw new Error("workspace couldnt be created check inputs")
-        }
+        const newWorkspace = workSpaceModel(name, admin_id);
+        if (!newWorkspace) throw new Error("Workspace konnte nicht erstellt werden.");
+
+       
+        db.prepare(`
+            INSERT INTO Workspaces(id, name, admin_id) 
+            VALUES(?, ?, ?)
+        `).run(newWorkspace.id, newWorkspace.name, newWorkspace.admin_id);
 
         console.log("workspace model created: ", newWorkspace)
 
-        db.prepare("INSERT INTO Workspaces(id, name, admin_id) VALUES(?, ?, ?)").run(newWorkspace.id, newWorkspace.name, newWorkspace.admin_id)
+
+        const model = workSpaceToUserModel(newWorkspace.id, newWorkspace.admin_id);
+        console.log("✅ Workspace-Admin erfolgreich hinzugefügt. ", model);
+        db.prepare(`
+            INSERT INTO WorkspaceUsers(id, workspace_id, user_id) 
+            VALUES(?, ?, ?)
+        `).run(model.id, model.workspace_id, model.user_id);
+
+      
+        await cacheWorkspaceMembers(newWorkspace.id, [{ id: admin_id, username: "Admin" }]);
 
         console.log("insertion done")
 
         return newWorkspace
-    }catch(err)
-    {
-        console.log(err.message)
-        throw err
-    }
-}
+        }
+    
+    
+       
+    
 
-export async function addFriendToWorkspace(db, id,workspace_id, user_id) {
-    try
-    {
-        db.prepare("INSERT INTO WorkspaceUsers(id, workspace_id, user_id) VALUES(?, ?,?)").run(id,workspace_id, user_id)
-        console.log("insertion done user is linked to workspace")
+
+
+
+export async function addFriendToWorkspace(db, id, workspace_id, user_id) {
+    try {
+        db.prepare(`
+            INSERT INTO WorkspaceUsers(id, workspace_id, user_id) 
+            VALUES(?, ?, ?)
+        `).run(id, workspace_id, user_id);
+
 
         return 'user is now workspace member'
     }catch(err)
@@ -130,4 +144,71 @@ export async function getAllMembersOfAWorkspace(db, workspace_id) {
         throw err
     }
 
+
 }
+
+export async function updateTodo(db, redis, todoId, newText = null, newStatus = null) {
+    console.log(`🔄 Aktualisiere To-Do: ${todoId}`);
+
+    // Nur das ändern, was übergeben wurde
+    const updateQuery = db.prepare(`
+        UPDATE Todo 
+        SET todo = COALESCE(?, todo),
+            status = COALESCE(?, status)
+        WHERE id = ?
+    `);
+    updateQuery.run(newText, newStatus, todoId);
+
+    // Aktualisierte To-Do aus der Datenbank abrufen
+    const updatedTodo = db.prepare(`SELECT * FROM Todo WHERE id = ?`).get(todoId);
+    
+    // Redis-Cache aktualisieren
+    const cacheKey = `workspace:${updatedTodo.workspace_id}:todos`;
+    await redis.lrem(cacheKey, 0, JSON.stringify(updatedTodo)); // Altes löschen
+    await redis.lpush(cacheKey, JSON.stringify(updatedTodo)); // Neues speichern
+
+    // WebSocket-Broadcast für alle Clients im Workspace
+    const channel = `workspace:${updatedTodo.workspace_id}`;
+    redis.publish(channel, JSON.stringify({ action: "update", todo: updatedTodo }));
+
+    return updatedTodo;
+}
+
+export async function deleteTodo(db, redis, todoId) {
+    console.log(`Lösche To-Do: ${todoId}`);
+
+    const todo = db.prepare("SELECT * FROM Todo WHERE id = ?").get(todoId);
+    if (!todo) throw new Error("To-Do nicht gefunden!");
+
+
+    db.prepare("DELETE FROM Todo WHERE id = ?").run(todoId);
+
+    const cacheKey = `workspace:${todo.workspace_id}:todos`;
+    await redis.lrem(cacheKey, 0, JSON.stringify(todo)); 
+
+    const channel = `workspace:${todo.workspace_id}`;
+    redis.publish(channel, JSON.stringify({ action: "delete", todoId }));
+
+    console.log(`To-Do ${todoId} erfolgreich gelöscht.`);
+}
+
+export async function findAllWorkspacesForAUser(db, userId) {
+    try {
+        console.log(`🔍 Lade Workspaces für User ${userId}`);
+
+        const result = db.prepare(`
+            SELECT DISTINCT w.id, w.name, w.admin_id, w.creation_date
+            FROM Workspaces w
+            LEFT JOIN WorkspaceUsers wu ON w.id = wu.workspace_id
+            WHERE wu.user_id = ? OR w.admin_id = ?
+        `).all(userId, userId);  // userId wird für beide Bedingungen verwendet!
+
+        console.log(`✅ Gefundene Workspaces für User ${userId}:`, result);
+        return result;
+
+    } catch (err) {
+        console.error(`❌ Fehler beim Laden der Workspaces für User ${userId}:`, err.message);
+        throw err;
+    }
+}
+

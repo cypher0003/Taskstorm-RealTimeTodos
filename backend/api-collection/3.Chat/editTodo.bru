@@ -1,0 +1,22 @@
+meta {
+  name: editTodo
+  type: http
+  seq: 5
+}
+
+patch {
+  url: http://localhost:3000/chat/todos/update
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNhYzJhYjNiLTYwMDAtNDViZC1hNjUxLTU2M2ZlZDc5M2ZlMyIsInVzZXJuYW1lIjoia2V2aW4iLCJlbWFpbCI6ImtldmluQHRlc3QiLCJwcm9maWxlX3BpY3R1cmUiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAvdXBsb2Fkcy9wcm9maWxlX3BpY3R1cmVzLzMxZDNjZmQyLTk5ZTItNDZlMi1iYWViLTUwMjYxNmJmM2E5NC53ZWJwIiwiY3JlYXRpb25fZGF0ZSI6IjIwMjUtMDItMDgiLCJpYXQiOjE3MzkyMDcxOTQsImV4cCI6MTc0NTIwNzEzNH0.lccgOe1jDm0nXdM08SzPfdSU2I8cx1xsFoa75v-koMg
+}
+
+body:json {
+  {
+    "todoId" : "c57298cf-42cd-4477-a1a4-709e8faca80c",
+    "newStatus" : "DONE"
+  }
+}
