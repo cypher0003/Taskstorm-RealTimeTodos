@@ -18,4 +18,105 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+
+  margin: 0;
+  padding: 0;
+  display: grid;
+  min-height: 100vh;
+}
+
+.sidebarContainer {
+  background-color: rgb(59, 51, 72);
+  color: rgb(192, 192, 192);
+  width: 16rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+}
+
+main {
+  margin-left: 16rem; 
+  padding: 1rem;       
+  min-height: 100vh;   
+  box-sizing: border-box;
+}
+
+
+.createBox {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  padding: 1.5rem;
+  background-color: white;
+  color: black;
+  width: 30vw;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 2rem auto;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.createTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.input {
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: black;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  width: 90%; 
+}
+
+
+.input:focus {
+  outline: none;
+  border-color: rgb(90, 74, 108);
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+}
+
+.createButton {
+  background-color: rgb(90, 74, 108);
+  border-radius: 8px;
+  border: none;
+  padding: 1rem;
+  color: white;
+  font-weight: bold;
+  text-decoration: none; 
+  text-align: center; 
+  transition: all 0.3s ease; 
+  margin-top: 1rem;
+}
+
+.createButton:hover {
+  background-color: rgb(70, 54, 88);
+}
+
+.cancelButton {
+  background-color: red;
+  border: none;
+  border-radius: 8px;
+  padding: 1rem;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.cancelButton:hover {
+  background-color: darkred;
 }
