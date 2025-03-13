@@ -84,7 +84,7 @@ export async function createWorkspace(db, name, admin_id) {
 
 
         const model = workSpaceToUserModel(newWorkspace.id, newWorkspace.admin_id);
-        console.log("✅ Workspace-Admin erfolgreich hinzugefügt. ", model);
+        console.log("Workspace-Admin erfolgreich hinzugefügt. ", model);
         db.prepare(`
             INSERT INTO WorkspaceUsers(id, workspace_id, user_id) 
             VALUES(?, ?, ?)

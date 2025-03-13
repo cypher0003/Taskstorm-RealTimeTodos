@@ -58,7 +58,7 @@ export async function answerRequest(db, currentUser, targetUser, answer) {
     try {
         const target = await getUserByUsername(db, targetUser);
         if (!target) {
-            console.error(`❌ Benutzer ${targetUser} nicht gefunden.`);
+            console.error(`Benutzer ${targetUser} nicht gefunden.`);
             throw new Error(`Benutzer ${targetUser} nicht gefunden.`);
         }
         console.log("🔍 User gefunden:", target);
@@ -76,7 +76,7 @@ export async function answerRequest(db, currentUser, targetUser, answer) {
 
             changes = updateResult.changes;
         } else {
-            console.log(`❌ Lehne Freundschaftsanfrage von ${target.username} ab`);
+            console.log(`Lehne Freundschaftsanfrage von ${target.username} ab`);
 
             const deleteResult = db.prepare(`
                 DELETE FROM Friendships
@@ -91,11 +91,11 @@ export async function answerRequest(db, currentUser, targetUser, answer) {
             console.warn("⚠️ Keine Freundschaftsanfrage gefunden oder bereits beantwortet.");
             throw new Error("Keine ausstehende Freundschaftsanfrage gefunden oder bereits beantwortet.");
         } else {
-            console.log(`✅ Erfolgreich verarbeitet, ${changes} Zeile(n) geändert.`);
+            console.log(`Erfolgreich verarbeitet, ${changes} Zeile(n) geändert.`);
         }
 
     } catch (err) {
-        console.error("❌ Fehler:", err.message);
+        console.error("Fehler:", err.message);
         throw err;
 
     }
