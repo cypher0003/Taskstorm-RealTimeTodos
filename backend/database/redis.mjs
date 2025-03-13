@@ -56,9 +56,10 @@ export async function cacheWorkspaceTodos(workspaceId, userId ,todo) {
  * Holt Todos aus dem Redis-Cache
  */
 export async function getCachedWorkspaceTodos(workspaceId) {
-    const cachedTodos = await redisPublisher.lrange(`workspace:${workspaceId}:todos`, 0 , -1);
-    return cachedTodos ? JSON.parse(cachedTodos) : [];
-}
+    const cachedTodos = await redisPublisher.lrange(`workspace:${workspaceId}:todos`, 0, -1);
+    return cachedTodos ? cachedTodos.map(todo => JSON.parse(todo)) : [];
+  }
+  
 
 /**
  * Speichert Mitglieder eines Workspaces in Redis

@@ -8,62 +8,54 @@ export const friendSchema = {
       status: { type: "string", enum: ["pending", "accepted", "rejected"] },
       created_at: { type: "string", format: "date-time" }
   },
-  required: ["id", "sender_id", "receiver_id", "status", "created_at"]
+
 };
 
 export const sendFriendRequestOptions = {
-  schema: {
+    schema: {
       body: {
-          type: "object",
-          properties: {
-              username: { type: "string" }
-
-          },
-          required: ["username"]
+        type: "object",
+        properties: {
+          username: { type: "string" }
+        },
+        required: ["username"]
       },
       response: {
         201: {
           type: "object",
           properties: {
-              username: { type: "string" }
+            username: { type: "string" },
+            friend: { type: "string" }
           },
-          required: ["username"]
+         
+        }
+      }
+    }
+  }
+
+  export const answerFriendRequestOptions = {
+    schema: {
+      body: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          username: { type: "string" },
+          email: { type: "string" },
+          answer: { type: "string" }
+        },
       },
       response: {
-          201: {
-              type: "object",
-              properties: {
-                  friend: { $ref: "friendSchema#" }
-              }
-          }
-      }
-  }
-};
-
-export const answerFriendRequestOptions = {
-  schema: {
-      body: {
+        201: {
           type: "object",
           properties: {
-              username: { type: "string" },
-
-              email: { type: "string" },
-            },
-            required: ["id", "username", "email"],
-
-          },
-          required: ["username", "answer"]
-      },
-      response: {
-          201: {
-              type: "object",
-              properties: {
-                  friend: { $ref: "friendSchema#" }
-              }
+            friend: { $ref: "friendSchema#" }
           }
+        }
       }
-  }
-};
+    }
+  };
+  
+
 
 export const searchFriendsOfUserOptions = {
   schema: {

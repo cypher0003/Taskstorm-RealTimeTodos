@@ -13,12 +13,21 @@ export async function sendFriendRequest(db, currentUser, targetUser) {
 
         const checkStmt = db.prepare(`
             SELECT * FROM Friendships
-            WHERE sender_id = ? AND receiver_id = ? AND status = 'pending'
+            WHERE sender_id = ? AND receiver_id = ? 
         `);
         const existingRequest = checkStmt.get(currentUser.id, targetFriend.id);
+      if(existingRequest)
+      {
+        throw new Error("Freundschaftsanfrage bereits gesendet oder bereits befreundet.");
+      }
+
+      const friendShip = friendModel(currentUser.id, targetFriend.id);
+      db.prepare('INSERT INTO Friendships (sender_id, receiver_id, status) VALUES (?, ?, ?)').run(friendShip.sender_id, friendShip.receiver_id, friendShip.status);
+      return "done"
         
-        console.log("Error: ", err.message);
-        throw err
+    }catch (err) {
+        console.error("❌ Fehler beim Senden der Freundschaftsanfrage:", err.message);
+        throw err;
     }}
 /**
  * Akzeptiert oder lehnt eine Freundschaftsanfrage ab.
@@ -70,32 +79,7 @@ export async function answerRequest(db, currentUser, targetUser, answer) {
     }
 }
 
-/**
- * Akzeptiert oder lehnt eine Freundschaftsanfrage ab.
- */
-export async function answerRequest(db, currentUser, targetUser, answer) {
-    try {
-        const target = await getUserByUsername(db, targetUser);
 
-        if (answer === answerRequestEnum.accept) {
-            console.log(`Akzeptiere Freundschaftsanfrage von ${target.username}`);
-            db.prepare(`
-                UPDATE Friendships 
-                SET status = 'accepted'
-                WHERE sender_id = ? AND receiver_id = ? AND status = 'pending'
-            `).run(target.id, currentUser.id);
-        } else {
-            console.log(`Lehne Freundschaftsanfrage von ${target.username} ab`);
-            db.prepare(`
-                DELETE FROM Friendships
-                WHERE sender_id = ? AND receiver_id = ? AND status = 'pending'
-            `).run(target.id, currentUser.id);
-        }
-    } catch (err) {
-        console.error(" Fehler:", err.message);
-        throw err;
-    }
-}
 
 
 export async function searchFriendsOfUser(db, userId) {
