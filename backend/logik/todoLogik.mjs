@@ -1,9 +1,8 @@
 import { todoModel } from "../models/todoModel.mjs";
 import { workSpaceModel } from "../models/workSpaceModel.mjs";
 import {  cacheWorkspaceTodos, getCachedWorkspaceTodos, cacheWorkspaceMembers, getCachedWorkspaceMembers} from "../database/redis.mjs";
-
-import {  cacheWorkspaceTodos, getCachedWorkspaceTodos, cacheWorkspaceMembers, getCachedWorkspaceMembers} from "../database/redis.mjs";
 import { workSpaceToUserModel } from "../models/workSpaceModel.mjs"
+import { getUserByUsername } from "./userLogik.mjs";
 
 export async function sendToRedis(db, redis, workspaceId, creator_id, todo) {
     const channel = `workspace:${workspaceId}`;
@@ -112,13 +111,6 @@ export async function createWorkspace(db, name, admin_id) {
 
         return newWorkspace
         }
-    
-    
-       
-    
-
-
-
 
 export async function addFriendToWorkspace(db, id, workspace_id, user_id) {
     try {
@@ -223,3 +215,33 @@ export async function findAllWorkspacesForAUser(db, userId) {
     }
 }
 
+export async function findWorkspaceById(db, workspaceId) {
+    console.log(`Lade Workspace ${workspaceId}`);
+
+    const workspace = db.prepare(`
+        SELECT * FROM Workspaces
+        WHERE id = ?
+    `).get(workspaceId);
+
+    if (!workspace) throw new Error(`Workspace ${workspaceId} nicht gefunden.`);
+
+    console.log(`✅ Workspace ${workspaceId} gefunden:`, workspace);
+    return workspace;
+}
+
+export async function leaveWorkspace(db, username, workspaceID) {
+    try{
+        console.log("trying to remove link");
+        const targetUser = await getUserByUsername(db, username);
+        if(!targetUser) throw new Error("User not found");
+
+        const targetSpace = await findWorkspaceById(db, workspaceID);
+        if(!targetSpace) throw new Error("Workspace not found");
+
+        db.prepare(` DELETE FROM WorkspaceUsers WHERE user_id = ? AND workspace_id = ?`).run(targetUser.id, targetSpace.id);
+        return "User removed from workspace";
+    }catch(err){
+        console.error(`Fehler beim Verlassen des Workspaces ${workspaceID}:`, err.message);
+        throw err;
+    }
+}

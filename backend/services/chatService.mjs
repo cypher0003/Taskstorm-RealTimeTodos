@@ -1,3 +1,4 @@
+import fastify from "fastify";
 import { 
 
   sendToRedis, 
@@ -8,34 +9,12 @@ import {
   sendCachedTodos,
   updateTodo,
   deleteTodo,
-  findAllWorkspacesForAUser
+  findAllWorkspacesForAUser,
+  leaveWorkspace
 } from "../logik/todoLogik.mjs";
 import { workSpaceToUserModel } from "../models/workSpaceModel.mjs";
 
 
-export async function chatService(fastify, options) {
-
-    const { redisPublisher, redisSubscriber } = fastify.redis;
-    const clients = {}; 
-  
-    
-    subscribeToMessages(redisSubscriber, clients);
-  
-    fastify.post("/send", sendMessageOptions, async (request, reply) => {
-      try {
-        const currentUser = request.user;
-        const { workspaceId, todo } = request.body;
-        if (!workspaceId || !todo) {
-          return reply.status(400).send({ error: "Fehlende Parameter: workspaceId oder todo" });
-        }
-  
-        await sendToRedis(fastify.db, redisPublisher, workspaceId, currentUser.id, todo);
-        return reply.status(201).send({ todo: "Gesendet!" });
-      } catch (error) {
-        console.error("Fehler beim Senden des Todos:", error);
-        return reply.status(500).send({ error: "Interner Serverfehler" });
-      }
-    });
 
 export async function chatService(fastify, options) {
     const { redisPublisher, redisSubscriber } = fastify.redis;
@@ -48,11 +27,6 @@ export async function chatService(fastify, options) {
         try {
             const { name } = request.body;
             const admin_id = request.user.id; // Der aktuell eingeloggte Benutzer wird Admin
-
-
-          const { name } = request.body;
-          
-          const admin_id = request.user.id;
           
           const workspace = await createWorkspace(fastify.db, name, admin_id);
           
@@ -198,5 +172,20 @@ export async function chatService(fastify, options) {
             console.error("Fehler beim Abrufen der Workspaces:", error);
             return reply.status(500).send({ error: "Interner Serverfehler" });
         }
-    })};
+    });
+    fastify.delete("/leaveWorkspace/:workspaceId", async (request, reply) => {
+        try {
+            const user = request.user;
+            const { workspaceId } = request.params;
+            await leaveWorkspace(fastify.db, user.username, workspaceId);
+            return reply.status(200).send({ message: "Workspace verlassen!" });
+        } catch (error) {
+            console.error("Fehler beim Verlassen des Workspaces:", error);
+            return reply.status(500).send({ error: "Interner Serverfehler" });
+        }
+    }); 
+};
+
+
+
 

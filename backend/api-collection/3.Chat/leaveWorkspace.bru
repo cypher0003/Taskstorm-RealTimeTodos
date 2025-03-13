@@ -1,0 +1,19 @@
+meta {
+  name: leaveWorkspace
+  type: http
+  seq: 8
+}
+
+delete {
+  url: http://localhost:3000/chat/leaveWorkspace/:workspaceId
+  body: none
+  auth: none
+}
+
+params:path {
+  workspaceId: 4a1db816-76dd-438c-a9b2-28a46c827f20
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijc3ZmNjOTdjLTg1NzAtNGMzYS1hNTY5LWQzN2ZiOWZhMTU1ZCIsInVzZXJuYW1lIjoia2V2aW4iLCJlbWFpbCI6ImtldmluQHRlc3QiLCJwcm9maWxlX3BpY3R1cmUiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAvdXBsb2Fkcy9wcm9maWxlX3BpY3R1cmVzLzMxZDNjZmQyLTk5ZTItNDZlMi1iYWViLTUwMjYxNmJmM2E5NC53ZWJwIiwiY3JlYXRpb25fZGF0ZSI6IjIwMjUtMDMtMTMiLCJpYXQiOjE3NDE4ODM3MDEsImV4cCI6MTc0Nzg4MzY0MX0.f-h1w6KYusSyllNGcOsyZtGVRGtVgFXxpJShhQ0kCds
+}
