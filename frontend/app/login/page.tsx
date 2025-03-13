@@ -82,8 +82,8 @@ export default function Login() {
           <Card>
             <CardBody>
               <div className="inputBox">
-                <Input label="E-Mail" placeholder="E-Mail eingeben" type="email" value={email} onChange={(email) => setEmail(email.target.value)} />
-                <Input label="Passwort" placeholder="Passwort eingeben" type="password" value={password} onChange={(password) => setPassword(password.target.value)} />
+                <Input className="input" label="E-Mail" placeholder="E-Mail eingeben" type="email" value={email} onChange={(email) => setEmail(email.target.value)} />
+                <Input className="input" label="Passwort" placeholder="Passwort eingeben" type="password" value={password} onChange={(password) => setPassword(password.target.value)} />
                 <Button className="loginB" onPress={() => handleLogin(email, password)}>Einloggen</Button>
               </div>
             </CardBody>
@@ -94,9 +94,9 @@ export default function Login() {
           <Card>
             <CardBody>
               <div className="inputBox">
-                <Input label="Nutzername" placeholder="Nutzername eingeben" type="text" value={registerData.userName} onChange={(e) => setRegisterData({ ...registerData, userName: e.target.value })} />
-                <Input label="E-Mail" placeholder="E-Mail eingeben" type="email" value={registerData.email} onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })} />
-                <Input label="Passwort" placeholder="Passwort eingeben" type="password" value={registerData.password} onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })} />
+                <Input className="input" label="Nutzername" placeholder="Nutzername eingeben" type="text" value={registerData.userName} onChange={(e) => setRegisterData({ ...registerData, userName: e.target.value })} />
+                <Input className="input" label="E-Mail" placeholder="E-Mail eingeben" type="email" value={registerData.email} onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })} />
+                <Input className="input" label="Passwort" placeholder="Passwort eingeben" type="password" value={registerData.password} onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })} />
                 <Button className="loginB" onPress={handleRegister}>Registrieren</Button>
               </div>
             </CardBody>

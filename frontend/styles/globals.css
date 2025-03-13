@@ -45,7 +45,6 @@ main {
   box-sizing: border-box;
 }
 
-
 .createBox {
   display: flex;
   flex-direction: column;
@@ -88,7 +87,7 @@ main {
 }
 
 .createButton {
-  background-color: rgb(90, 74, 108);
+  background-color: rgb(70, 54, 88);
   border-radius: 8px;
   border: none;
   padding: 1rem;
@@ -101,7 +100,8 @@ main {
 }
 
 .createButton:hover {
-  background-color: rgb(70, 54, 88);
+  background: linear-gradient(to right, rgb(70, 54, 88), rgb(159, 110, 215));
+  transform: translateY(-3px);
 }
 
 .cancelButton {
@@ -119,4 +119,5 @@ main {
 
 .cancelButton:hover {
   background-color: darkred;
+  transform: translateY(-3px);
 }
