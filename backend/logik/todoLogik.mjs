@@ -2,6 +2,8 @@ import { todoModel } from "../models/todoModel.mjs";
 import { workSpaceModel } from "../models/workSpaceModel.mjs";
 import {  cacheWorkspaceTodos, getCachedWorkspaceTodos, cacheWorkspaceMembers, getCachedWorkspaceMembers} from "../database/redis.mjs";
 
+import {  cacheWorkspaceTodos, getCachedWorkspaceTodos, cacheWorkspaceMembers, getCachedWorkspaceMembers} from "../database/redis.mjs";
+import { workSpaceToUserModel } from "../models/workSpaceModel.mjs"
 
 export async function sendToRedis(db, redis, workspaceId, creator_id, todo) {
     const channel = `workspace:${workspaceId}`;
@@ -83,12 +85,11 @@ export function subscribeToMessages(redis, workspaceClients) {
 }
 
 export async function createWorkspace(db, name, admin_id) {
-    console.log(`📌 Erstelle neuen Workspace: ${name}, Admin: ${admin_id}`);
-    
-    try {
-        const newWorkspace = workSpaceModel(name, admin_id);
-        if (!newWorkspace) throw new Error("❌ Workspace konnte nicht erstellt werden.");
 
+        const newWorkspace = workSpaceModel(name, admin_id);
+        if (!newWorkspace) throw new Error("Workspace konnte nicht erstellt werden.");
+
+       
         db.prepare(`
             INSERT INTO Workspaces(id, name, admin_id) 
             VALUES(?, ?, ?)
@@ -96,14 +97,28 @@ export async function createWorkspace(db, name, admin_id) {
 
         console.log("✅ Workspace erfolgreich in der DB gespeichert. ", newWorkspace);
 
+
+        const model = workSpaceToUserModel(newWorkspace.id, newWorkspace.admin_id);
+        console.log("Workspace-Admin erfolgreich hinzugefügt. ", model);
+        db.prepare(`
+            INSERT INTO WorkspaceUsers(id, workspace_id, user_id) 
+            VALUES(?, ?, ?)
+        `).run(model.id, model.workspace_id, model.user_id);
+
+      
         await cacheWorkspaceMembers(newWorkspace.id, [{ id: admin_id, username: "Admin" }]);
 
-        return newWorkspace;
-    } catch (err) {
-        console.error("❌ Fehler beim Erstellen des Workspaces:", err.message);
-        throw err;
-    }
-}
+        console.log("insertion done")
+
+        return newWorkspace
+        }
+    
+    
+       
+    
+
+
+
 
 export async function addFriendToWorkspace(db, id, workspace_id, user_id) {
     try {
@@ -111,6 +126,7 @@ export async function addFriendToWorkspace(db, id, workspace_id, user_id) {
             INSERT INTO WorkspaceUsers(id, workspace_id, user_id) 
             VALUES(?, ?, ?)
         `).run(id, workspace_id, user_id);
+
 
         console.log(`✅ Benutzer ${user_id} erfolgreich zu Workspace ${workspace_id} hinzugefügt.`);
 
@@ -139,27 +155,7 @@ export async function getAllMembersOfAWorkspace(db, workspace_id) {
         return cachedMembers;
     }
 
-    try {
-        const allMembers = db.prepare(`
-            SELECT u.id, u.username, u.profile_picture 
-            FROM Users u 
-            JOIN WorkspaceUsers wu ON u.id = wu.user_id 
-            WHERE wu.workspace_id = ?
-        `).all(workspace_id);
 
-        if (allMembers.length === 0) {
-            throw new Error("❌ Keine Mitglieder gefunden.");
-        }
-
-        
-        await cacheWorkspaceMembers(workspace_id, allMembers);
-
-        console.log(`✅ Mitglieder für Workspace ${workspace_id} geladen und gecached.`);
-        return allMembers;
-    } catch (err) {
-        console.error(`❌ Fehler beim Laden der Mitglieder für Workspace ${workspace_id}:`, err.message);
-        throw err;
-    }
 }
 
 export async function updateTodo(db, redis, todoId, newText = null, newStatus = null) {
@@ -206,3 +202,24 @@ export async function deleteTodo(db, redis, todoId) {
 
     console.log(`To-Do ${todoId} erfolgreich gelöscht.`);
 }
+
+export async function findAllWorkspacesForAUser(db, userId) {
+    try {
+        console.log(`🔍 Lade Workspaces für User ${userId}`);
+
+        const result = db.prepare(`
+            SELECT DISTINCT w.id, w.name, w.admin_id, w.creation_date
+            FROM Workspaces w
+            LEFT JOIN WorkspaceUsers wu ON w.id = wu.workspace_id
+            WHERE wu.user_id = ? OR w.admin_id = ?
+        `).all(userId, userId);  // userId wird für beide Bedingungen verwendet!
+
+        console.log(`✅ Gefundene Workspaces für User ${userId}:`, result);
+        return result;
+
+    } catch (err) {
+        console.error(`❌ Fehler beim Laden der Workspaces für User ${userId}:`, err.message);
+        throw err;
+    }
+}
+

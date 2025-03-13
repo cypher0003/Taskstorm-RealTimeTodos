@@ -17,6 +17,15 @@ export const sendFriendRequestOptions = {
           type: "object",
           properties: {
               username: { type: "string" }
+
+          },
+          required: ["username"]
+      },
+      response: {
+        201: {
+          type: "object",
+          properties: {
+              username: { type: "string" }
           },
           required: ["username"]
       },
@@ -37,7 +46,11 @@ export const answerFriendRequestOptions = {
           type: "object",
           properties: {
               username: { type: "string" },
-              answer: { type: "string", enum: ["accepted", "rejected"] }
+
+              email: { type: "string" },
+            },
+            required: ["id", "username", "email"],
+
           },
           required: ["username", "answer"]
       },

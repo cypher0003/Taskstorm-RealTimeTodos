@@ -1,21 +1,15 @@
 meta {
-  name: createWorkspace
+  name: findUserWorkspaces
   type: http
-  seq: 3
+  seq: 7
 }
 
-post {
-  url: http://localhost:3000/chat/workspace/create
-  body: json
+get {
+  url: http://localhost:3000/chat/userWorkspace
+  body: none
   auth: none
 }
 
 headers {
   Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU5Yjc0NzdiLWJmZjMtNDQ5YS05NWZiLTc3MDhiZDQ3ZGRkZSIsInVzZXJuYW1lIjoic2xhdmEiLCJlbWFpbCI6InNsYXZhQHRlc3QiLCJwcm9maWxlX3BpY3R1cmUiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAvdXBsb2Fkcy9wcm9maWxlX3BpY3R1cmVzLzMxZDNjZmQyLTk5ZTItNDZlMi1iYWViLTUwMjYxNmJmM2E5NC53ZWJwIiwiY3JlYXRpb25fZGF0ZSI6IjIwMjUtMDMtMTEiLCJpYXQiOjE3NDE3MDQ3NDYsImV4cCI6MTc0NzcwNDY4Nn0.tWjPkHPBAR4g1kfXQ_Yc42uhQz-22kpaZGzcKBeg4t8
-}
-
-body:json {
-  {
-    "name": "SlavasSpace"
-  }
 }

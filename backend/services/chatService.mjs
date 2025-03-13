@@ -1,4 +1,5 @@
 import { 
+
   sendToRedis, 
   getTodosOfWorkspace, 
   subscribeToMessages, 
@@ -6,10 +7,35 @@ import {
   createWorkspace,
   sendCachedTodos,
   updateTodo,
-  deleteTodo
+  deleteTodo,
+  findAllWorkspacesForAUser
 } from "../logik/todoLogik.mjs";
 import { workSpaceToUserModel } from "../models/workSpaceModel.mjs";
-import { sendMessageOptions } from "../schemas/chatSchema.mjs";
+
+
+export async function chatService(fastify, options) {
+
+    const { redisPublisher, redisSubscriber } = fastify.redis;
+    const clients = {}; 
+  
+    
+    subscribeToMessages(redisSubscriber, clients);
+  
+    fastify.post("/send", sendMessageOptions, async (request, reply) => {
+      try {
+        const currentUser = request.user;
+        const { workspaceId, todo } = request.body;
+        if (!workspaceId || !todo) {
+          return reply.status(400).send({ error: "Fehlende Parameter: workspaceId oder todo" });
+        }
+  
+        await sendToRedis(fastify.db, redisPublisher, workspaceId, currentUser.id, todo);
+        return reply.status(201).send({ todo: "Gesendet!" });
+      } catch (error) {
+        console.error("Fehler beim Senden des Todos:", error);
+        return reply.status(500).send({ error: "Interner Serverfehler" });
+      }
+    });
 
 export async function chatService(fastify, options) {
     const { redisPublisher, redisSubscriber } = fastify.redis;
@@ -23,12 +49,14 @@ export async function chatService(fastify, options) {
             const { name } = request.body;
             const admin_id = request.user.id; // Der aktuell eingeloggte Benutzer wird Admin
 
-            if (!name) {
-                return reply.status(400).send({ error: "❌ Workspace-Name ist erforderlich" });
-            }
 
-            const workspace = await createWorkspace(fastify.db, name, admin_id);
-            return reply.code(201).send({ workspace });
+          const { name } = request.body;
+          
+          const admin_id = request.user.id;
+          
+          const workspace = await createWorkspace(fastify.db, name, admin_id);
+          
+          reply.code(201).send({ workspace });
         } catch (error) {
             console.error("❌ Fehler beim Erstellen des Workspaces:", error.message);
             return reply.code(500).send({ error: "❌ Interner Serverfehler" });
@@ -76,6 +104,7 @@ export async function chatService(fastify, options) {
             console.error("Fehler beim Hinzufügen des Freundes zum Workspace:", error.message);
             return reply.code(500).send({ error: "Interner Serverfehler" });
         }
+
     });
 
     fastify.patch("/todos/update", async (request, reply) => {
@@ -159,4 +188,15 @@ export async function chatService(fastify, options) {
       }
   });
   
-}
+  fastify.get("/userWorkspace", async (request, reply) => {
+        try {
+            const user = request.user;
+            const id = user.id;
+            const workspaces = await findAllWorkspacesForAUser(fastify.db, id);
+            return reply.status(200).send({ workspaces });
+        } catch (error) {
+            console.error("Fehler beim Abrufen der Workspaces:", error);
+            return reply.status(500).send({ error: "Interner Serverfehler" });
+        }
+    })};
+

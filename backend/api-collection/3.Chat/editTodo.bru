@@ -1,13 +1,11 @@
 meta {
-  name: addFriendToWorkspace
+  name: editTodo
   type: http
-  seq: 4
+  seq: 5
 }
 
-post {
-
-  url: http://localhost:3000/chat/workspace/ad27f8e3-51a1-4a94-806c-57a55609365a/addFriend
-
+patch {
+  url: http://localhost:3000/chat/todos/update
   body: json
   auth: none
 }
@@ -18,8 +16,7 @@ headers {
 
 body:json {
   {
-
-    "friendId":"5500d93f-9536-4233-b966-a65d0ebe99b1"
-
+    "todoId" : "c57298cf-42cd-4477-a1a4-709e8faca80c",
+    "newStatus" : "DONE"
   }
 }

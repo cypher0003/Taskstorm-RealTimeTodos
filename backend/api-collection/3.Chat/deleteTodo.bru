@@ -1,25 +1,15 @@
 meta {
-  name: addFriendToWorkspace
+  name: deleteTodo
   type: http
-  seq: 4
+  seq: 6
 }
 
-post {
-
-  url: http://localhost:3000/chat/workspace/ad27f8e3-51a1-4a94-806c-57a55609365a/addFriend
-
-  body: json
+delete {
+  url: http://localhost:3000/chat/todos/delete/54971ef0-91cb-41f0-82b5-d3b7f63eeb0b
+  body: none
   auth: none
 }
 
 headers {
   Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNhYzJhYjNiLTYwMDAtNDViZC1hNjUxLTU2M2ZlZDc5M2ZlMyIsInVzZXJuYW1lIjoia2V2aW4iLCJlbWFpbCI6ImtldmluQHRlc3QiLCJwcm9maWxlX3BpY3R1cmUiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAvdXBsb2Fkcy9wcm9maWxlX3BpY3R1cmVzLzMxZDNjZmQyLTk5ZTItNDZlMi1iYWViLTUwMjYxNmJmM2E5NC53ZWJwIiwiY3JlYXRpb25fZGF0ZSI6IjIwMjUtMDItMDgiLCJpYXQiOjE3MzkyMDcxOTQsImV4cCI6MTc0NTIwNzEzNH0.lccgOe1jDm0nXdM08SzPfdSU2I8cx1xsFoa75v-koMg
-}
-
-body:json {
-  {
-
-    "friendId":"5500d93f-9536-4233-b966-a65d0ebe99b1"
-
-  }
 }
