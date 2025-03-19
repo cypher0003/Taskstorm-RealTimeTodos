@@ -121,3 +121,66 @@ main {
   background-color: darkred;
   transform: translateY(-3px);
 }
+
+.customTable-wrapper {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.customTable {
+  border-collapse: collapse; 
+  background-color: #fff;
+  width: auto;
+  margin: 0 auto;      
+  min-width: 300px;  
+  max-width: 600px;   
+  border-radius: 8px;  
+}
+
+.customTable thead {
+  background-color: #f3f4f6; 
+}
+
+.customTable thead th {
+  padding: 12px;
+  text-align: left;
+  font-size: 0.75rem;        
+  font-weight: 600;         
+  text-transform: uppercase; 
+  color: #374151;           
+  letter-spacing: 0.05em;  
+}
+
+.customTable tbody td {
+  padding: 12px;
+  border-top: 1px solid #e5e7eb; 
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.customTable tbody tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.customTable tbody tr:hover {
+  background-color: #f3f4f6;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.acceptButton {
+  background-color: green;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.3rem;
+}
+
+.rejectButton {
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.3rem;
+}

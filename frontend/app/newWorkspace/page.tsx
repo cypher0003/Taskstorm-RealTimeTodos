@@ -17,7 +17,7 @@ export default function NewWorkspace() {
 
     const createWorkspace = async () => {
         try {
-            const response = await fetch("http://localhost:3000/workspace/createWorkspace", {
+            const response = await fetch("http://localhost:3000/chat/workspace/create", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -31,6 +31,7 @@ export default function NewWorkspace() {
                 alert("Workspace konnte nicht erstellt werden: " + error.error);
             } else {
                 alert("Workspace wurde erfolgreich erstellt");
+                window.location.reload();
             }
 
         } catch (error) {
@@ -43,9 +44,9 @@ export default function NewWorkspace() {
     <div className="createBox">
         <h1 className="createTitle">Neues Workspace erstellen</h1>
         <Input className="input" label="Workspace-Name" placeholder="Namen eingeben" value={workspaceName} onChange={(workspaceName) => setWorkspaceName(workspaceName.target.value)} />
-            <Button className="createButton" onPress={createWorkspace}>Erstellen</Button>
-            <br />
-            <Button className="cancelButton" onPress={onClose}>Abbrechen</Button>
+        <Button className="createButton" onPress={createWorkspace}>Erstellen</Button>
+        <br />
+        <Button className="cancelButton" onPress={onClose}>Abbrechen</Button>
     </div>
   );
 }
