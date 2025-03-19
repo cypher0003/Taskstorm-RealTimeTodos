@@ -12,6 +12,8 @@ export default function Sidebar() {
   const [token, setToken] = useState<string | null>(null);
   const [hasMounted, setHasMounted] = useState(false);
   const [activeView, setActiveView] = useState<"friends" | "workspaces">("friends");
+  const [friends, setFriends] = useState<any[]>([]);
+  const [workspaces, setWorkspaces] = useState<any[]>([]);
 
   const handleLogout = async () => {
     try {
@@ -39,7 +41,7 @@ export default function Sidebar() {
     router.push("/login");
   }
 
-  const getFriends = async () => {
+  const getFriends = async (token: string) => {
     try {
       const response = await fetch("http://localhost:3000/friends/getFriends", {
         method: "GET",
@@ -52,45 +54,53 @@ export default function Sidebar() {
         const error = await response.json();
         alert("GetFriends process failed: " + error.error);
         return;
+      } else {
+        const data = await response.json();
+        setFriends(data)
       }
+
 
     } catch (error) {
       console.error("Error during getFriends process:", error);
     }
   }
 
-  // const getWorkspaces = async () => {}
-
-  const answerFriendRequest = async () => {
+  const findUserWorkspaces = async (token: string) => {
     try {
-      const response = await fetch("http://localhost:3000/friends/answerFriendRequest", {
-        method: "POST",
+      const response = await fetch("http://localhost:3000/chat/userWorkspace", {
+        method: "GET",
         headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({
-          username: requestedFriend,
-          answer: friendshipAnswer
-        })
       });
-
+      
       if (!response.ok) {
         const error = await response.json();
-        alert("AnswerFriendRequest process failed: " + error.error);
+        alert("GetWorkspaces process failed: " + error.error);
         return;
+      } else {
+        const data = await response.json();
+        setWorkspaces(data.workspaces)
       }
 
+      
     } catch (error) {
-      console.error("Error during answerFriendRequest process: ", error);
+      console.error("Error during getWorkspaces process:", error);
     }
   }
+
+
 
   useEffect(() => {
     setHasMounted(true);
     const token = localStorage.getItem("token");
     setToken(token);
-  }, []);
+    if (token) {
+      getFriends(token)
+      findUserWorkspaces(token)
+    }
+    
+  }, [token]);
 
   if (!hasMounted) {
     return null; 
@@ -105,32 +115,70 @@ export default function Sidebar() {
       {/* Wenn User eingeloggt ist */}
       {token ? (
         <>
+
+          {/* Logout-Button */}
+          <div style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+            <Button className='loginButton' onPress={handleLogout}>Logout</Button>
+          </div>
+
           {/* Button zum Umschalten zwischen Friends und Workspaces */}
           {activeView === 'friends' ? (
             <Button className='loginButton' onPress={() => setActiveView('workspaces')}>Zu Workspaces</Button>
           ) : (
             <Button className='loginButton' onPress={() => setActiveView('friends')}>Zu Friends</Button>
           )}
+          
 
           {/* Hier wird die aktuelle Ansicht angezeigt */}
           {activeView === 'friends' && (
-            <div>
-              <p>Freunde-Liste</p>
+            <div style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+              <Button className='loginButton' onPress={() => router.push('/friends')}>Freunde verwalten</Button>
+              {friends.length === 0 ? (
+                <p>Keine Freunde gefunden</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {friends.map((friend) => (
+                    <Button
+                      key={friend.username}
+                      className='sidebarButton'
+                      style={{ marginTop: '0.5rem'}}
+                    >
+                      {friend.username}
+                    </Button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           {activeView === 'workspaces' && (
-            <div style={{ marginTop: '1rem' }}>
-              <p>Workspaces-Liste</p>
-            </div>
-          )}
+          <div>
+            <Button
+              style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}
+              className="loginButton"
+              onPress={() => router.push('/newWorkspace')}
+            >
+              Workspaces verwalten
+            </Button>
 
-          {/* Logout-Button */}
-          <div style={{ marginTop: '1rem' }}>
-            <Button onPress={handleLogout}>Logout</Button>
+            {workspaces.length === 0 ? (
+              <p>Keine Workspaces gefunden</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {workspaces.map((workspace) => (
+                  <Button
+                    key={workspace.id}
+                    className="sidebarButton"
+                    style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}
+                  >
+                    {workspace.name}
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
+        )}
         </>
       ) : (
-        // Wenn kein Token -> Nur Login-Button anzeigen
         <div className="sidebar-list-items">
           <Button className='loginButton' onPress={() => router.push('/login')}>Login</Button>
         </div>
