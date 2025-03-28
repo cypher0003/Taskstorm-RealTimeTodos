@@ -1,29 +1,26 @@
-import { Metadata } from "next";
+'use client'
+
+
 import "@/styles/login.css";
 import "@/styles/globals.css";
-import "@/styles/sidebar.css"
-import Sidebar from "./components/Sidebar";
-import JWT from "./jwt";
+import "@/styles/sidebar.css";
 import { HeroUIProvider } from "@heroui/system";
+import { NextUIProvider } from "@nextui-org/react";
+import ConditionalSidebar from "./ifSidebar";
 
-export const metadata: Metadata = {
-    title: "Webprojekt",
-    description: "Abgabe DHBW",
-};
+
+
 export default function RootLayout({
     children,
-  }: Readonly<{
-    children: React.ReactNode;
-  }>) {
+}: Readonly<{ children: React.ReactNode }>) {
     return (
-      <html lang="en">
-        <body>
-        <HeroUIProvider>
-          <JWT />
-          <Sidebar />
-          <main>{children}</main>
-        </HeroUIProvider>
-        </body>
-      </html>
+        <html lang="en">
+            <body>
+                <NextUIProvider>
+                    <ConditionalSidebar />
+                    <main>{children}</main>
+                </NextUIProvider>
+            </body>
+        </html>
     );
 }

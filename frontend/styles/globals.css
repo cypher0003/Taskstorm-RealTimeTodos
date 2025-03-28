@@ -99,6 +99,10 @@ main {
   margin-top: 1rem;
 }
 
+.checkButton {
+  
+}
+
 .createButton:hover {
   background: linear-gradient(to right, rgb(70, 54, 88), rgb(159, 110, 215));
   transform: translateY(-3px);
@@ -124,9 +128,8 @@ main {
 
 .customTable-wrapper {
   overflow-x: auto;
-  border-radius: 0.5rem;
+  border-radius: 8px;
   margin-top: 1rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .customTable {
@@ -145,6 +148,7 @@ main {
 
 .customTable thead th {
   padding: 12px;
+  border-radius: 8px;
   text-align: left;
   font-size: 0.75rem;        
   font-weight: 600;         
@@ -184,3 +188,5 @@ main {
   border-radius: 8px;
   padding: 0.3rem;
 }
+
+

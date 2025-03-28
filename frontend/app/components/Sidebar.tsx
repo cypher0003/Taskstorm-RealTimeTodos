@@ -4,6 +4,7 @@ import { Button, user } from '@nextui-org/react';
 import { PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import JWT from '../jwt';
 
 
 
@@ -89,8 +90,6 @@ export default function Sidebar() {
     }
   }
 
-
-
   useEffect(() => {
     setHasMounted(true);
     const token = localStorage.getItem("token");
@@ -98,6 +97,7 @@ export default function Sidebar() {
     if (token) {
       getFriends(token)
       findUserWorkspaces(token)
+      JWT()
     }
     
   }, [token]);
@@ -106,30 +106,31 @@ export default function Sidebar() {
     return null; 
   }
 
+  console.log("LocalStorage nach getItem:", localStorage.getItem("userName"));
+  console.log("Token:", token);
+
   return (
     <div className="sidebarContainer">
       <div className="sidebar-list-header">
         <h3 className="sidebar-title">TaskStorm</h3>
       </div>
-
-      {/* Wenn User eingeloggt ist */}
+      <div>
+        <h4>{localStorage.getItem("userName")}</h4>
+        
+      </div>
+      
       {token ? (
         <>
-
-          {/* Logout-Button */}
           <div style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}>
             <Button className='loginButton' onPress={handleLogout}>Logout</Button>
           </div>
 
-          {/* Button zum Umschalten zwischen Friends und Workspaces */}
           {activeView === 'friends' ? (
             <Button className='loginButton' onPress={() => setActiveView('workspaces')}>Zu Workspaces</Button>
           ) : (
             <Button className='loginButton' onPress={() => setActiveView('friends')}>Zu Friends</Button>
           )}
           
-
-          {/* Hier wird die aktuelle Ansicht angezeigt */}
           {activeView === 'friends' && (
             <div style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}>
               <Button className='loginButton' onPress={() => router.push('/friends')}>Freunde verwalten</Button>
@@ -169,6 +170,7 @@ export default function Sidebar() {
                     key={workspace.id}
                     className="sidebarButton"
                     style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}
+                    onPress={() => router.push(`/workspace/${workspace.id}`)}
                   >
                     {workspace.name}
                   </Button>
