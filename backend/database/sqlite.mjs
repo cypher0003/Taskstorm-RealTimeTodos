@@ -2,7 +2,7 @@ import fp from "fastify-plugin";
 import Database from "better-sqlite3";
 import { redisPublisher } from "./redis.mjs";
 
-const filePath = 'database/database.db';
+const filePath = 'backend/database/database.db';
 
 // 🛠️ Tabellen mit `updated_at` für bessere Synchronisation
 const createUserTableStatement = `
@@ -61,6 +61,7 @@ const createWorkspaceUsersTableStatement = `
     user_id TEXT NOT NULL,
     joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    role TEXT NOT NULL,
     FOREIGN KEY (workspace_id) REFERENCES Workspaces(id),
     FOREIGN KEY (user_id) REFERENCES Users(id)
   );

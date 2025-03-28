@@ -9,11 +9,12 @@ export function workSpaceModel(name, admin_id) {
     }
 }
 
-export function workSpaceToUserModel(workspace_id, user_id) {
+export function workSpaceToUserModel(workspace_id, user_id, role) {
     return {
         id: v4(),
         workspace_id,
         user_id,
+        role,
         joined_at: new Date().toISOString()
     }
 }

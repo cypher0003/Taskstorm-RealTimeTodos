@@ -1,7 +1,19 @@
 import Redis from "ioredis";
 
-const redisPublisher = new Redis();  
-const redisSubscriber = new Redis();
+const redisHost = process.env.REDIS_HOST || 'localhost';
+const redisPort = process.env.REDIS_PORT || 6379;
+const redisPassword = process.env.REDIS_PASSWORD || null;
+
+const redisPublisher = new Redis({
+    host: redisHost,
+    port: redisPort,
+    password: redisPassword,
+  });
+  const redisSubscriber = new Redis({
+    host: redisHost,
+    port: redisPort,
+    password: redisPassword,
+  });
 
 redisPublisher.on('connect', () => console.log('✅ Redis Publisher verbunden.'));
 redisSubscriber.on('connect', () => console.log('✅ Redis Subscriber verbunden.'));
