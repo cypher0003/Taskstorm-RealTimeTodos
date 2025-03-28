@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroui/modal": "^2.2.13",
     "@heroui/system": "^2.4.12",
     "@nextui-org/react": "^2.6.11",
     "heroui-cli": "^1.0.0",
