@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from "react";
-import { Button, Input, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow , Modal, ModalBody, ModalHeader, ModalFooter } from "@nextui-org/react";
+import { Button, Input, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { Trash, Check } from "lucide-react";
 
@@ -25,7 +25,7 @@ export default function Workspace({ workspaceId }: { workspaceId: string }) {
   const router = useRouter();
   const ws = useRef<WebSocket | null>(null);
   const [friends, setFriends] = useState<any[]>([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [friendsWindow, setFriendsWindow] = useState<boolean>(false);
 
   const getTodos = async () => {
     try {
@@ -205,6 +205,35 @@ const sendTodo = async () => {
     }
   }
 
+  const addFriendToWorkspace = async (friendId: string, workspaceId: string) => {
+    try {
+      if (!token) {
+        console.error("Kein Token vorhanden");
+        return;
+      }
+
+      const response = await fetch(`http://localhost:3000/chat/workspace/${workspaceId}/addFriend`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          friendId,
+          workspaceId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Fehler beim Hinzufügen des Freundes zum Workspace");
+      }
+
+    } catch (error) {
+        console.error("Fehler beim Hinzufügen des Freundes zum Workspace:", error
+      );
+    }
+  }
+
   const leaveWorkspace = () => {
     if (ws.current) {
       ws.current.close();
@@ -216,7 +245,7 @@ const sendTodo = async () => {
 
   const openCollaborators = () => {
     console.log("Öffne Mitglieder");
-    setIsModalVisible(true);
+    setFriendsWindow(true);
   }
   
 
@@ -229,80 +258,93 @@ const sendTodo = async () => {
 
   return (
     <>
-    <Button className="cancelButton" onPress={leaveWorkspace}>Zurück</Button>
-    <Button className="createButton" onPress={openCollaborators}>Mitglieder</Button>
-      <div className="createBox">
-        <Input
-          className="input"
-          label="Neues To-Do"
-          value={todo}
-          onChange={(e) => setTodo(e.target.value)}
-        />
-        <Button className="createButton" onPress={sendTodo}>
-          Absenden
-        </Button>
-      </div>
+      {friendsWindow ? (
+        <>
+          <Button className="cancelButton" onPress={() => setFriendsWindow(false)}>Schließen</Button>
+          <div className="friendsWindow">
+            <h2 className="createTitle">Freunde zum Workspace hinzufügen</h2>
+            <div className="customTableWrapper">
+              {friends.map((friend) => (
+                <div key={friend.id} className="friend">
+                  <Table className="customTable">
+                    <TableHeader>
+                      <TableColumn>Freund</TableColumn>
+                      <TableColumn>Hinzufügen</TableColumn>
+                    </TableHeader>
+                    <TableBody>
+                      {friends.map((friend) => (
+                        <TableRow key={friend.id}>
+                          <TableCell>{friend.username}</TableCell>
+                          <TableCell>
+                            <Button className="createButton" onPress={() => addFriendToWorkspace(friend.id, workspaceId)}
+                            >Hinzufügen</Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <Button className="cancelButton" onPress={leaveWorkspace}>Verlassen</Button>
+          <Button className="createButton" onPress={openCollaborators}>Mitglieder</Button>
+            <div className="createBox">
+              <Input
+                className="input"
+                label="Neues To-Do"
+                value={todo}
+                onChange={(e) => setTodo(e.target.value)}
+              />
+              <Button className="createButton" onPress={sendTodo}>
+                Absenden
+              </Button>
+            </div>
 
-      
-
-      <div className="customTable-wrapper">
-        <h2 className="createTitle">To-Do Liste</h2>
-        <Table className="customTable">
-            <TableHeader>
-                <TableColumn>Erstell von</TableColumn>
-                <TableColumn>To-Do</TableColumn>
-                <TableColumn>Status</TableColumn>
-                <TableColumn>Erstellt am</TableColumn>
-                <TableColumn>Aktionen</TableColumn>
-            </TableHeader>
-          <TableBody>
-          {todos.map((item) => (
-                <TableRow key={item.id}>
-                <TableCell>{item.creator_id}</TableCell>
-                <TableCell>{item.todo}</TableCell>
-                <TableCell>{item.status}</TableCell>
-                <TableCell>{item.timestamp}</TableCell>
-                <TableCell>
-                  {item.status === "DONE" ? (
-                    <p>
-                      Erledigt
-                    </p>
-                  ) : (
-                    <Check className="checkButton" onClick={() => updateTodoStatus(item.id)} size={24} />
-                  )}
-                  <br />
-                  <Trash className="trashButton" onClick={() => deleteTodo(item.id)} size={24} />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-
-      
-        <div className="friendsModal">
-        <Modal isOpen={isModalVisible} onClose={() => setIsModalVisible(false)}>
-          <ModalHeader>
-            <h3>Freunde</h3>
-          </ModalHeader>
-          <ModalBody>
-            {friends && friends.length > 0 ? (
-              <ul>
-                {friends.map((friend) => (
-                  <li key={friend.id}>{friend.name || friend.username || friend.id}</li>
-                ))}
-              </ul>
-            ) : (
-              <p>Keine Freunde gefunden.</p>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Button onPress={() => setIsModalVisible(false)}>Schließen</Button>
-          </ModalFooter>
-        </Modal>
-        </div>
-        
-
+            <div className="customTable-wrapper">
+              <h2 className="createTitle">To-Do Liste</h2>
+              <Table className="customTable">
+                <TableHeader>
+                  <TableColumn>Erstellt von</TableColumn>
+                  <TableColumn>To-Do</TableColumn>
+                  <TableColumn>Status</TableColumn>
+                  <TableColumn>Erstellt am</TableColumn>
+                  <TableColumn>Aktionen</TableColumn>
+                </TableHeader>
+                <TableBody>
+                  {todos.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.creator_id}</TableCell>
+                      <TableCell>{item.todo}</TableCell>
+                      <TableCell>{item.status}</TableCell>
+                      <TableCell>{item.timestamp}</TableCell>
+                      <TableCell>
+                        {item.status === "DONE" ? (
+                          <p>Erledigt</p>
+                        ) : (
+                          <Check
+                            className="checkButton"
+                            onClick={() => updateTodoStatus(item.id)}
+                            size={24}
+                          />
+                        )}
+                        <br />
+                        <Trash
+                          className="trashButton"
+                          onClick={() => deleteTodo(item.id)}
+                          size={24}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+        </>
+      )}
     </>
   );
 }
