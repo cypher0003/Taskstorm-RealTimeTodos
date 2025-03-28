@@ -9,9 +9,10 @@ export default function Login() {
   const [password, setPassword] = useState("");
 
   const [registerData, setRegisterData] = useState({
-    userName: "",
+    username: "",
     email: "",
-    password: ""
+    password: "",
+
   });
 
   const [profilePic, setProfilePic] = useState<File | null>(null);
@@ -44,7 +45,7 @@ export default function Login() {
       } else {
         const token = data.token;
         localStorage.setItem("token", token);
-        localStorage.setItem("userName", data.userName);
+        localStorage.setItem("userName", data.username);
         window.location.href = "http://localhost:4000/home";
       }
 
@@ -56,7 +57,7 @@ export default function Login() {
   const handleRegister = async () => {
     try {
       const formData = new FormData();
-      formData.append("userName", registerData.userName);
+      formData.append("username", registerData.username);
       formData.append("email", registerData.email);
       formData.append("password", registerData.password);
 
@@ -118,9 +119,9 @@ export default function Login() {
           <Card>
             <CardBody>
               <div className="inputBox">
-                <Input style={{ width: "165%" }} className="input" label="Nutzername" placeholder="Nutzername eingeben" type="text" value={registerData.userName}
+                <Input style={{ width: "165%" }} className="input" label="Nutzername" placeholder="Nutzername eingeben" type="text" value={registerData.username}
                   onChange={(e) =>
-                    setRegisterData({ ...registerData, userName: e.target.value })
+                    setRegisterData({ ...registerData, username: e.target.value })
                   }
                 />
                 <Input style={{ width: "165%" }} className="input" label="E-Mail" placeholder="E-Mail eingeben" type="email" value={registerData.email}
