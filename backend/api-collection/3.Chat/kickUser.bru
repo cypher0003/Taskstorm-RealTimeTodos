@@ -1,0 +1,23 @@
+meta {
+  name: kickUser
+  type: http
+  seq: 10
+}
+
+delete {
+  url: http://localhost:3000/chat/kickUser
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImMzNjFkNmFmLTdjNzktNDc3OS04ZjA5LTM0YTE4ZmRjMTEzMiIsInVzZXJuYW1lIjoia2V2aW4iLCJlbWFpbCI6ImtldmluQHRlc3QiLCJwcm9maWxlX3BpY3R1cmUiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAvdXBsb2Fkcy9wcm9maWxlX3BpY3R1cmVzLzMxZDNjZmQyLTk5ZTItNDZlMi1iYWViLTUwMjYxNmJmM2E5NC53ZWJwIiwiY3JlYXRpb25fZGF0ZSI6IjIwMjUtMDMtMjgiLCJpYXQiOjE3NDMxNjYzNzksImV4cCI6MTc0OTE2NjMxOX0.8Ugz5ehgqyh1BrcNV-bFMVbpCyC_L8OOxsyL2qWi8wk
+  : 
+}
+
+body:json {
+  {
+    "workspace_id": "a2e03003-87dc-4fff-99bb-7a63815a453d",
+    "username": "slava"
+  }
+}

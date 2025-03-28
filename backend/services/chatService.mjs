@@ -10,7 +10,9 @@ import {
   updateTodo,
   deleteTodo,
   findAllWorkspacesForAUser,
-  leaveWorkspace
+  leaveWorkspace,
+  changeRole,
+  kickUser
 } from "../logik/todoLogik.mjs";
 import { workSpaceToUserModel } from "../models/workSpaceModel.mjs";
 
@@ -53,7 +55,6 @@ export async function chatService(fastify, options) {
             return reply.status(500).send({ error: "Interner Serverfehler" });
         }
     });
-
     // GET /todos/:workspaceId → Alle To-Dos eines Workspaces abrufen
     fastify.get("/todos/:workspaceId", async (request, reply) => {
         try {
@@ -65,7 +66,6 @@ export async function chatService(fastify, options) {
             return reply.status(500).send({ error: "❌ Interner Serverfehler" });
         }
     });
-
     // POST /workspace/:workspaceId/addFriend → Freund zu einem Workspace hinzufügen
     fastify.post("/workspace/:workspaceId/addFriend", async (request, reply) => {
         try {
@@ -80,7 +80,6 @@ export async function chatService(fastify, options) {
         }
 
     });
-
     fastify.patch("/todos/update", async (request, reply) => {
         try {
             const { todoId, newText, newStatus } = request.body;
@@ -95,7 +94,6 @@ export async function chatService(fastify, options) {
             return reply.status(500).send({ error: "Interner Serverfehler" });
         }
     });
-
     fastify.delete("/todos/delete/:todoId", async (request, reply) => {
         try {
             const { todoId } = request.params;
@@ -110,7 +108,6 @@ export async function chatService(fastify, options) {
             return reply.status(500).send({ error: "Interner Serverfehler" });
         }
     });
-
     // WebSocket-Route → Clients verbinden sich mit einem Workspace
     fastify.get('/ws/workspace/:workspaceId', { websocket: true }, async (connection, req) => {
       try {
@@ -160,9 +157,8 @@ export async function chatService(fastify, options) {
           console.error("Fehler in WebSocket-Handler:", err.message);
           connection.close();
       }
-  });
-  
-  fastify.get("/userWorkspace", async (request, reply) => {
+    });
+    fastify.get("/userWorkspace", async (request, reply) => {
         try {
             const user = request.user;
             const id = user.id;
@@ -184,6 +180,37 @@ export async function chatService(fastify, options) {
             return reply.status(500).send({ error: "Interner Serverfehler" });
         }
     }); 
+    fastify.patch("/changeMemberRole", async (request, reply) => {
+        try {
+            const user = request.user;
+            const { workspace_id, username, newRole } = request.body;
+            if (!workspace_id || !username || !newRole) {
+                return reply.status(400).send({ error: "Fehlende Parameter!" });
+            }
+            console.log("Ändere Rolle für:", username, "zu", newRole);
+            const msg = await changeRole(fastify.db, user, workspace_id, username, newRole);
+            return reply.status(200).send({ message: msg });
+        } catch (error) {
+            console.error("Fehler beim Ändern der Mitgliedsrolle:", error.message);
+            return reply.status(500).send({ error: "Interner Serverfehler" });
+        }
+    });
+
+    fastify.delete("/kickUser", async (request, reply) => {
+        try {
+            const user = request.user;
+            const { workspace_id, username } = request.body;
+            if (!workspace_id || !username) {
+                return reply.status(400).send({ error: "Fehlende Parameter!" });
+            }
+            console.log("Kicke User:", username);
+            const msg = await kickUser(fastify.db, user, workspace_id, username);
+            return reply.status(200).send({ message: msg });
+        } catch (error) {
+            console.error("Fehler beim Kicken des Users:", error.message);
+            return reply.status(500).send({ error: "Interner Serverfehler" });
+        }
+    });
 };
 
 
