@@ -27,6 +27,7 @@ export default function Workspace({ workspaceId }: { workspaceId: string }) {
   const [friends, setFriends] = useState<any[]>([]);
   const [friendsWindow, setFriendsWindow] = useState<boolean>(false);
 
+
   const getTodos = async () => {
     try {
       const response = await fetch(`http://localhost:3000/chat/todos/${workspaceId}`, {
@@ -35,16 +36,21 @@ export default function Workspace({ workspaceId }: { workspaceId: string }) {
           Authorization: `Bearer ${token}`
         },
       });
+      
       if (!response.ok) {
         throw new Error("Fehler beim Abrufen der Todos");
       }
+
       const data: TodoApiResponse[] = await response.json();
       console.log("Todos:", data);
       setTodos(data.items);
+
     } catch (error) {
+      alert("Fehler beim laden der Todos: " + error)
       console.error("Error during getTodos process:", error);
     }
   };
+
 
   const getFriends = async (token: string) => {
     try {
@@ -61,27 +67,33 @@ export default function Workspace({ workspaceId }: { workspaceId: string }) {
         return;
       } else {
         const data = await response.json();
+        console.log("Friends:", data);
         setFriends(data)
       }
 
-
     } catch (error) {
+      alert("Fehler beim Laden der Freunde: " + error);
       console.error("Error during getFriends process:", error);
     }
   }
 
   useEffect(() => {
-    getTodos();
+    if (!token) {
+      return
+    }
 
-    if (!token) return;
+    getTodos();
+    getFriends(token);
 
     ws.current = new WebSocket(`ws://localhost:3000/chat/ws/workspace/${workspaceId}?token=${token}`);
+    console.log("Neue WebSocket-Verbindung erstellt");
 
     ws.current.onopen = () => {
       console.log("WebSocket connection established");
     };
 
     ws.current.onmessage = (event) => {
+      console.log("WebSocket message received:", event.data,)
       try {
         const messageData = JSON.parse(event.data);
     
@@ -146,6 +158,7 @@ const sendTodo = async () => {
 
     
   } catch (error) {
+    alert("Fehler beim Senden des Todos " + error);
     console.error("Fehler beim Senden des Todos:", error);
   }
 };
@@ -174,6 +187,7 @@ const sendTodo = async () => {
       }
 
     } catch (error) {
+      alert("Fehler beim Aktualisieren des Todos: " + error);
       console.error("Fehler beim Aktualisieren des Todos:", error);
     }
   }
@@ -201,6 +215,7 @@ const sendTodo = async () => {
       }
 
     } catch (error) {
+      alert("Fehler beim Löschen des Todos" + error);
       console.error("Fehler beim Löschen des Todos:", error);
     }
   }
@@ -229,8 +244,28 @@ const sendTodo = async () => {
       }
 
     } catch (error) {
+        alert("Fehler beim Hinzufügen des Freundes zum Workspace: " + error);
         console.error("Fehler beim Hinzufügen des Freundes zum Workspace:", error
       );
+    }
+  }
+
+  const kickUser = async (username: string, workspaceId: string) => {
+    try {
+      const response = await fetch(`http://localhost:3000/chat/kickUser`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          workspaceId,
+          username,
+        }),
+      });
+    } catch (error) {
+      alert("Fehler beim Kicken des Users: " + error);
+      console.error("Fehler beim Kicken des Users:", error);
     }
   }
 
@@ -244,47 +279,38 @@ const sendTodo = async () => {
   }
 
   const openCollaborators = () => {
-    console.log("Öffne Mitglieder");
     setFriendsWindow(true);
   }
-  
 
-  useEffect(() => {
-    if (token) {
-      getTodos();
-      getFriends(token);
-    }
-  }, [workspaceId, token]);
 
   return (
     <>
       {friendsWindow ? (
         <>
-          <Button className="cancelButton" onPress={() => setFriendsWindow(false)}>Schließen</Button>
+          <Button className="cancelButton" onPress={() => setFriendsWindow(false)}>
+            Schließen
+          </Button>
           <div className="friendsWindow">
-            <h2 className="createTitle">Freunde zum Workspace hinzufügen</h2>
+            <h2 className="createTitle">Mitgliederverwaltung</h2>
             <div className="customTableWrapper">
-              {friends.map((friend) => (
-                <div key={friend.id} className="friend">
-                  <Table className="customTable">
-                    <TableHeader>
-                      <TableColumn>Freund</TableColumn>
-                      <TableColumn>Hinzufügen</TableColumn>
-                    </TableHeader>
-                    <TableBody>
-                      {friends.map((friend) => (
-                        <TableRow key={friend.id}>
-                          <TableCell>{friend.username}</TableCell>
-                          <TableCell>
-                            <Button className="createButton" onPress={() => addFriendToWorkspace(friend.id, workspaceId)}
-                            >Hinzufügen</Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              ))}
+              <Table className="customTable">
+                <TableHeader>
+                  <TableColumn>Freund</TableColumn>
+                  <TableColumn>Aktionen</TableColumn>
+                </TableHeader>
+                <TableBody>
+                  {friends.map((friend) => (
+                    <TableRow key={friend.id}>
+                      <TableCell>{friend.username}</TableCell>
+                      <TableCell>
+                        <Button className="createButton" onPress={() => addFriendToWorkspace(friend.id, workspaceId)}>Hinzufügen</Button>
+                        <Button className="cancelButton" onPress={() => kickUser(friend.username, workspaceId)}>Kicken</Button>
+                        <Button className="createButton">Rolle wechseln</Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </div>
         </>
@@ -292,57 +318,43 @@ const sendTodo = async () => {
         <>
           <Button className="cancelButton" onPress={leaveWorkspace}>Verlassen</Button>
           <Button className="createButton" onPress={openCollaborators}>Mitglieder</Button>
-            <div className="createBox">
-              <Input
-                className="input"
-                label="Neues To-Do"
-                value={todo}
-                onChange={(e) => setTodo(e.target.value)}
-              />
-              <Button className="createButton" onPress={sendTodo}>
-                Absenden
-              </Button>
-            </div>
-
-            <div className="customTable-wrapper">
-              <h2 className="createTitle">To-Do Liste</h2>
-              <Table className="customTable">
-                <TableHeader>
-                  <TableColumn>Erstellt von</TableColumn>
-                  <TableColumn>To-Do</TableColumn>
-                  <TableColumn>Status</TableColumn>
-                  <TableColumn>Erstellt am</TableColumn>
-                  <TableColumn>Aktionen</TableColumn>
-                </TableHeader>
-                <TableBody>
-                  {todos.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>{item.creator_id}</TableCell>
-                      <TableCell>{item.todo}</TableCell>
-                      <TableCell>{item.status}</TableCell>
-                      <TableCell>{item.timestamp}</TableCell>
-                      <TableCell>
-                        {item.status === "DONE" ? (
-                          <p>Erledigt</p>
-                        ) : (
-                          <Check
-                            className="checkButton"
-                            onClick={() => updateTodoStatus(item.id)}
-                            size={24}
-                          />
-                        )}
-                        <br />
-                        <Trash
-                          className="trashButton"
-                          onClick={() => deleteTodo(item.id)}
-                          size={24}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+          
+          <div className="createBox">
+            <Input className="input" label="Neues To-Do" value={todo} onChange={(todo) => setTodo(todo.target.value)}/>
+            <Button className="createButton" onPress={sendTodo}>Absenden</Button>
+          </div>
+  
+          <div className="customTable-wrapper">
+            <h2 className="createTitle">To-Do Liste</h2>
+            <Table className="customTable">
+              <TableHeader>
+                <TableColumn>Erstellt von</TableColumn>
+                <TableColumn>To-Do</TableColumn>
+                <TableColumn>Status</TableColumn>
+                <TableColumn>Erstellt am</TableColumn>
+                <TableColumn>Aktionen</TableColumn>
+              </TableHeader>
+              <TableBody>
+                {todos.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>{item.creator_id}</TableCell>
+                    <TableCell>{item.todo}</TableCell>
+                    <TableCell>{item.status}</TableCell>
+                    <TableCell>{item.timestamp}</TableCell>
+                    <TableCell>
+                      {item.status === "DONE" ? (
+                        <p>Erledigt</p>
+                      ) : (
+                        <Check className="checkButton" onClick={() => updateTodoStatus(item.id)} size={24}/>
+                      )}
+                      <br />
+                      <Trash className="trashButton" onClick={() => deleteTodo(item.id)} size={24}/>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </>
       )}
     </>

@@ -4,7 +4,7 @@ import { Button, user } from '@nextui-org/react';
 import { PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import JWT from '../jwt';
+
 
 
 
@@ -38,7 +38,6 @@ export default function Sidebar() {
 
     localStorage.removeItem("token");
     setToken(null);
-    console.log("LocalStorage nach removeItem:", localStorage.getItem("token"));
     router.push("/login");
   }
 
@@ -97,7 +96,7 @@ export default function Sidebar() {
     if (token) {
       getFriends(token)
       findUserWorkspaces(token)
-      JWT()
+      
     }
     
   }, [token]);
@@ -105,9 +104,6 @@ export default function Sidebar() {
   if (!hasMounted) {
     return null; 
   }
-
-  console.log("LocalStorage nach getItem:", localStorage.getItem("userName"));
-  console.log("Token:", token);
 
   return (
     <div className="sidebarContainer">
