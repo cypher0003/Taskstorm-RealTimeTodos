@@ -2,7 +2,6 @@
 import { usePathname } from "next/navigation";
 import Sidebar from "./components/Sidebar";
 
-console.log("Geh doch alter")
 
 export default function ConditionalSidebar() {
   const pathname = usePathname();
