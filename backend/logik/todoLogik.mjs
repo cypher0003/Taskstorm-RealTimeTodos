@@ -331,4 +331,22 @@ export async function kickUser(db, user, workspace_id, userName) {
     }
 }
 
+export async function getWorkspaceMembers(db, user, workspaceId) {
+    const query = `
+      SELECT 
+        u.id, 
+        u.username, 
+        u.email, 
+        u.profile_picture, 
+        wu.joined_at, 
+        wu.role
+      FROM Users u
+      JOIN WorkspaceUsers wu ON u.id = wu.user_id
+      WHERE wu.workspace_id = ? AND u.id != ?
+    `;
+    const stmt = db.prepare(query);
+    return stmt.all(workspaceId, user.id);
+  }
+  
+
 

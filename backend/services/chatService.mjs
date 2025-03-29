@@ -12,7 +12,8 @@ import {
   findAllWorkspacesForAUser,
   leaveWorkspace,
   changeRole,
-  kickUser
+  kickUser,
+  getWorkspaceMembers
 } from "../logik/todoLogik.mjs";
 import { workSpaceToUserModel } from "../models/workSpaceModel.mjs";
 
@@ -208,6 +209,18 @@ export async function chatService(fastify, options) {
             return reply.status(200).send({ message: msg });
         } catch (error) {
             console.error("Fehler beim Kicken des Users:", error.message);
+            return reply.status(500).send({ error: "Interner Serverfehler" });
+        }
+    });
+
+    fastify.get("/workspace/:workspaceId/members", async (request, reply) => {
+        try {
+            const user = request.user;
+            const { workspaceId } = request.params;
+            const members = await getWorkspaceMembers(fastify.db, user, workspaceId);
+            return reply.status(200).send({ members });
+        } catch (error) {
+            console.error("Fehler beim Abrufen der Mitglieder:", error.message);
             return reply.status(500).send({ error: "Interner Serverfehler" });
         }
     });
