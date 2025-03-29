@@ -1,15 +1,16 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import Workspace from '../Workspace';
+import Workspace from '../workspace';
 
 
 export default function WorkspacePage() {
-  const { workspaceId } = useParams() as { workspaceId: string };
+  const { id } = useParams() as { id: string };
+  console.log(id);
 
   return (
       <Workspace 
-        workspaceId={workspaceId} 
+        workspaceId={id} 
       />
     );
 }
