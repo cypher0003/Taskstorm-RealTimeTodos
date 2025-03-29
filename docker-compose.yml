@@ -12,7 +12,6 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      # Host-Pfad -> Container-Pfad
       - "./backend/database/database.db:/app/backend/database/database.db"
     depends_on:
       - redis
