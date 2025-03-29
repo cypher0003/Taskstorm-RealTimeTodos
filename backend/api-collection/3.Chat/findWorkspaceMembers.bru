@@ -1,0 +1,15 @@
+meta {
+  name: findWorkspaceMembers
+  type: http
+  seq: 11
+}
+
+get {
+  url: http://localhost:3000/chat/workspace/:workspaceId/members
+  body: none
+  auth: inherit
+}
+
+params:path {
+  workspaceId: 
+}
