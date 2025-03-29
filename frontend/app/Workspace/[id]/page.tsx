@@ -5,11 +5,11 @@ import Workspace from '../Workspace';
 
 
 export default function WorkspacePage() {
-  const { id } = useParams() as {id: string};
+  const { workspaceId } = useParams() as { workspaceId: string };
 
   return (
       <Workspace 
-        workspaceId={id} 
+        workspaceId={workspaceId} 
       />
     );
 }
