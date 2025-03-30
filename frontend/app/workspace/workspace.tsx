@@ -47,7 +47,6 @@ export default function Workspace({ workspaceId }: { workspaceId: string }) {
       setTodos(data.items);
 
     } catch (error) {
-      alert("Fehler beim laden der Todos: " + error)
       console.error("Error during getTodos process:", error);
     }
   };
@@ -296,7 +295,7 @@ export default function Workspace({ workspaceId }: { workspaceId: string }) {
       });
 
       if (!response.ok) {
-        throw new Error("Fehler beim Hinzufügen des Freundes zum Workspace");
+        throw new Error("Fehler beim Kicken des Freundes aus dem Workspace");
       } else {
         getWorkspaceMembers()
       }
