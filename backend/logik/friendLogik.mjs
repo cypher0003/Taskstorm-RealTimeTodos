@@ -64,7 +64,7 @@ export async function answerRequest(db, currentUser, targetUser, answer) {
             changes = deleteResult.changes;
         }
 
-        // 🚨 Prüfe, ob tatsächlich eine Änderung vorgenommen wurde
+        // Prüfe, ob tatsächlich eine Änderung vorgenommen wurde
         if (changes === 0) {
             console.warn("⚠️ Keine Freundschaftsanfrage gefunden oder bereits beantwortet.");
             throw new Error("Keine ausstehende Freundschaftsanfrage gefunden oder bereits beantwortet.");
