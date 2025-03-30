@@ -35,8 +35,8 @@ export async function chatService(fastify, options) {
           
           reply.code(201).send({ workspace });
         } catch (error) {
-            console.error("❌ Fehler beim Erstellen des Workspaces:", error.message);
-            return reply.code(500).send({ error: "❌ Interner Serverfehler" });
+            console.error("Fehler beim Erstellen des Workspaces:", error.message);
+            return reply.code(500).send({ error: "Interner Serverfehler" });
         }
     });
 
@@ -63,8 +63,8 @@ export async function chatService(fastify, options) {
             const todos = await getTodosOfWorkspace(fastify.db, workspaceId);
             return reply.status(200).send({ items: todos });
         } catch (error) {
-            console.error("❌ Fehler beim Abrufen der Todos:", error);
-            return reply.status(500).send({ error: "❌ Interner Serverfehler" });
+            console.error("Fehler beim Abrufen der Todos:", error);
+            return reply.status(500).send({ error: "Interner Serverfehler" });
         }
     });
     // POST /workspace/:workspaceId/addFriend → Freund zu einem Workspace hinzufügen
@@ -114,7 +114,7 @@ export async function chatService(fastify, options) {
       try {
           const { workspaceId } = req.params;
   
-          // 🔥 Token aus Query-Parameter holen
+          // Token aus Query-Parameter holen
           const token = new URL(req.url, `http://${req.headers.host}`).searchParams.get("token");
           if (!token) {
               console.log("Kein Token vorhanden!");
@@ -122,7 +122,7 @@ export async function chatService(fastify, options) {
               return;
           }
   
-          // 🔥 JWT-Token verifizieren
+          // JWT-Token verifizieren
           let user;
           try {
               user = fastify.jwt.verify(token);
@@ -144,7 +144,7 @@ export async function chatService(fastify, options) {
   
           const channel = `workspace:${workspaceId}`;
           redisSubscriber.subscribe(channel);
-          console.log(`🔄 WebSocket-Client für Workspace ${workspaceId} hört auf Channel ${channel}`);
+          console.log(`WebSocket-Client für Workspace ${workspaceId} hört auf Channel ${channel}`);
   
           connection.on("close", async () => {
               console.log(`WebSocket-Verbindung für User ${user.id} in Workspace ${workspaceId} geschlossen.`);

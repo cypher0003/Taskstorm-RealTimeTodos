@@ -9,7 +9,7 @@ export async function sendFriendRequest(db, currentUser, targetUser) {
         }
 
         const targetFriend = await getUserByUsername(db, targetUser);
-        console.log(`📌 Sende Freundschaftsanfrage an ${targetFriend.username}`);
+        console.log(`Sende Freundschaftsanfrage an ${targetFriend.username}`);
 
         const checkStmt = db.prepare(`
             SELECT * FROM Friendships
@@ -26,7 +26,7 @@ export async function sendFriendRequest(db, currentUser, targetUser) {
       return "done"
         
     }catch (err) {
-        console.error("❌ Fehler beim Senden der Freundschaftsanfrage:", err.message);
+        console.error("Fehler beim Senden der Freundschaftsanfrage:", err.message);
         throw err;
     }}
 /**
@@ -39,12 +39,12 @@ export async function answerRequest(db, currentUser, targetUser, answer) {
             console.error(`Benutzer ${targetUser} nicht gefunden.`);
             throw new Error(`Benutzer ${targetUser} nicht gefunden.`);
         }
-        console.log("🔍 User gefunden:", target);
+        console.log("User gefunden:", target);
 
         let changes = 0; // Speichert, ob die Query Änderungen vorgenommen hat
 
         if (answer === answerRequestEnum.accept) {
-            console.log(`✅ Akzeptiere Freundschaftsanfrage von ${target.username}`);
+            console.log(`Akzeptiere Freundschaftsanfrage von ${target.username}`);
 
             const updateResult = db.prepare(`
                 UPDATE Friendships 
@@ -64,9 +64,8 @@ export async function answerRequest(db, currentUser, targetUser, answer) {
             changes = deleteResult.changes;
         }
 
-        // 🚨 Prüfe, ob tatsächlich eine Änderung vorgenommen wurde
         if (changes === 0) {
-            console.warn("⚠️ Keine Freundschaftsanfrage gefunden oder bereits beantwortet.");
+            console.warn("Keine Freundschaftsanfrage gefunden oder bereits beantwortet.");
             throw new Error("Keine ausstehende Freundschaftsanfrage gefunden oder bereits beantwortet.");
         } else {
             console.log(`Erfolgreich verarbeitet, ${changes} Zeile(n) geändert.`);

@@ -32,7 +32,7 @@ export async function getUserByEmail(db, email) {
         return cachedUser;
     }
 
-    console.log(`🔍 Suche Benutzer in der Datenbank: ${email}`);
+    console.log(`Suche Benutzer in der Datenbank: ${email}`);
     const foundUser = db.prepare("SELECT * FROM Users WHERE email = ?").get(email);
     
     if (!foundUser) throw new Error("Benutzer nicht gefunden.");
