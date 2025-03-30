@@ -11,7 +11,7 @@ Ausführung:
 5. danach "docker-compose up" ausführen
 6. Inkognito-Tab im Browser öffnen
 7. UI ist unter localhost:4000 erreichbar (http://localhost:4000/login)
-8. Registrieren (Profilbild ist kein Muss)
+8. Registrieren (Profilbild ist optional)
    ![image](https://github.com/user-attachments/assets/583263d4-f62e-4c3b-9a12-52237d906ba8)
 9. Mehrere User anlegen, um Freundschaften simulieren zu können
 10. Freunde hinzufügen unter "Freunde verwalten" --> Usernamen eines anderen User in das Input-Feld eingeben und Anfrage abschicken
@@ -26,11 +26,13 @@ Ausführung:
     ![image](https://github.com/user-attachments/assets/8e6a69ed-9368-4f23-aee0-013baaebc79a)
     ANMERKUNG:
     Falls angelegte Todos nach einem erneuten Beitreten in den Workspace nicht mehr gefetcht werden, bitte den Docker-Container neu ausführen (Schritt 4 und 5).       Dies ist ein Docker-Fehler, der aufgrund des Zeitmangels nicht mehr behandelt werden konnte.
+    Vorsichtshalber davor das Logout benutzen, damit der Token gelöscht wird.
 17. Auf "Mitglieder" klicken --> Mitgliederverwaltung wird geöffnet
     ![image](https://github.com/user-attachments/assets/92d9808a-18d2-4c94-a144-5411f4cdae74)
 18. Hier kann man Freunde hinzufügen (aufgrund dessen bitte unbedingt mehrere User anlegen)
-19. Man kann Mitgliederrollen wechseln und diese als Owner aus dem Workspace kicken
+19. Man kann Mitgliederrollen wechseln und diese als Owner und Admin aus dem Workspace kicken
     ![image](https://github.com/user-attachments/assets/e7f969fd-4055-438a-a436-7ce5d3341a2e)
+
 
 
 
