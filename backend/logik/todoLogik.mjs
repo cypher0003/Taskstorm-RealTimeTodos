@@ -265,6 +265,15 @@ export async function leaveWorkspace(db, username, workspaceID) {
 export async function changeRole(db, user, workspace_id, userName, newRole) {
     try {
         console.log("user Role: ", user)
+        const targetUser = await getUserByUsername(db, userName);
+        console.log("targetUser: ", targetUser)
+        const targetUserRole = db.prepare(`
+            SELECT role FROM WorkspaceUsers WHERE user_id = ? AND workspace_id = ?
+        `).get(targetUser.id, workspace_id);    
+
+        if(targetUserRole.role === workspaceRoles.owner) {
+            throw new Error("Owner kann nicht verändert werden");
+        }
         const sender = await getUserByUsername(db, user.username);
         console.log("sender: ", sender)
 
@@ -278,15 +287,7 @@ export async function changeRole(db, user, workspace_id, userName, newRole) {
             throw new Error("Ungültige Rolle angegeben.");
         }
        
-        const targetUser = await getUserByUsername(db, userName);
-        console.log("targetUser: ", targetUser)
-        const targetUserRole = db.prepare(`
-            SELECT role FROM WorkspaceUsers WHERE user_id = ? AND workspace_id = ?
-        `).get(targetUser.id, workspace_id);    
-
-        if(targetUserRole === workspaceRoles.owner) {
-            throw new Error("Owner kann nicht verändert werden");
-        }
+        
 
         db.prepare(`
             UPDATE WorkspaceUsers 
