@@ -3,6 +3,7 @@
 import { Button, Input, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { User } from "lucide-react"
 
 export default function Friends() {
     const router = useRouter();
@@ -130,31 +131,30 @@ export default function Friends() {
 
     return(
         <>
+            <div className="sidebarContainer">
+                <div className="sidebarHeader">
+                    <h3 className="sidebarTitle">Freunde</h3>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {friends.map((friend) => (
+                        <Button
+                            key={friend.username}
+                            className="sidebarButton"
+                            style={{ marginTop: '0.5rem' }}
+                        >
+                            <User/>
+                            {friend.username}
+                        </Button>
+                    ))}
+                </div>
+            </div>
+            <Button className="cancelButton" onPress={() => router.push("/home")}>Verlassen</Button>
             <div className="createBox">
                 <h1 className="createTitle">Freund hinzufügen</h1>
                 <Input className="input" label="Username" placeholder="Namen eingeben" value={username} onChange={(username) => setUsername(username.target.value)} />
                 <Button className="createButton" onPress={sendFriendRequest}>Anfrage schicken</Button>
                 <br />
                 <Button className="cancelButton" onPress={onBack}>Abbrechen</Button>
-            </div>
-            <div className="customTable-wrapper">
-                <h2 className="createTitle">Bestehende Freunde</h2>
-                <Table className="customTable">
-                <TableHeader>
-                    <TableColumn>Username</TableColumn>
-                    <TableColumn>Email</TableColumn>
-                    <TableColumn>ID</TableColumn>
-                </TableHeader>
-                <TableBody>
-                    {friends.map((friend) => (
-                    <TableRow key={friend.id}>
-                        <TableCell>{friend.username}</TableCell>
-                        <TableCell>{friend.email}</TableCell>
-                        <TableCell>{friend.id}</TableCell>
-                    </TableRow>
-                    ))}
-                </TableBody>
-                </Table>
             </div>
             <div className="customTable-wrapper">
                 <h2 className="createTitle">Offene Freundschaftsanfragen</h2>

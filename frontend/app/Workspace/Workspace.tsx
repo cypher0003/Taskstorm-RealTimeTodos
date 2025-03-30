@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Button, Input, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import { Trash, Check } from "lucide-react";
+import { Trash, Check, ArrowRight } from "lucide-react";
 
 interface Todo {
     id: string;
@@ -25,7 +25,8 @@ export default function Workspace({ workspaceId }: { workspaceId: string }) {
   const router = useRouter();
   const ws = useRef<WebSocket | null>(null);
   const [friends, setFriends] = useState<any[]>([]);
-  const [friendsWindow, setFriendsWindow] = useState<boolean>(false);
+  const [members, setMembers] = useState<any[]>([]);
+  const [membersWindow, setMembersWindow] = useState<boolean>(false);
 
 
   const getTodos = async () => {
@@ -77,13 +78,41 @@ export default function Workspace({ workspaceId }: { workspaceId: string }) {
     }
   }
 
+  const getWorkspaceMembers = async () => {
+    console.log("Wird ausgeführt");
+    try {
+      const response = await fetch(`http://localhost:3000/chat/workspace/${workspaceId}/members`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+      });
+      console.log("Fetch ging durch")
+
+      if (!response.ok) {
+        console.log("Response ist nicht ok")
+        throw new Error("Fehler beim Abrufen der Workspace-Mitglieder");
+      } else {
+        console.log("Response ist ok")
+        const data = await response.json();
+        setMembers(data.members);
+        console.log("Workspace-Mitglieder:", data);}
+
+      } catch (error) {
+        alert("Fehler beim Abrufen der Workspace-Mitglieder: " + error);
+        console.error("Fehler beim Abrufen der Workspace-Mitglieder:", error);
+      }
+    }
+
   useEffect(() => {
     if (!token) {
       return
     }
 
-    getTodos();
     getFriends(token);
+    getWorkspaceMembers();
+    getTodos();
+    
 
     ws.current = new WebSocket(`ws://localhost:3000/chat/ws/workspace/${workspaceId}?token=${token}`);
     console.log("Neue WebSocket-Verbindung erstellt");
@@ -131,37 +160,37 @@ export default function Workspace({ workspaceId }: { workspaceId: string }) {
 
 
 
-const sendTodo = async () => {
-  try {
-    if (!token) {
-      console.error("Kein Token vorhanden");
-      return;
-    }
+  const sendTodo = async () => {
+    try {
+      if (!token) {
+        console.error("Kein Token vorhanden");
+        return;
+      }
 
-    const response = await fetch("http://localhost:3000/chat/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        workspaceId,
-        todo,
-      }),
-    });
+      const response = await fetch("http://localhost:3000/chat/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          workspaceId,
+          todo,
+        }),
+      });
 
-    setTodo("");
+      setTodo("");
 
-    if (!response.ok) {
-      throw new Error("Fehler beim Senden des Todos");
-    }
+      if (!response.ok) {
+        throw new Error("Fehler beim Senden des Todos");
+      }
 
     
-  } catch (error) {
-    alert("Fehler beim Senden des Todos " + error);
-    console.error("Fehler beim Senden des Todos:", error);
-  }
-};
+    } catch (error) {
+      alert("Fehler beim Senden des Todos " + error);
+      console.error("Fehler beim Senden des Todos:", error);
+    }
+  };
 
   const updateTodoStatus = async (todoId: string) => {
     try {
@@ -241,6 +270,8 @@ const sendTodo = async () => {
 
       if (!response.ok) {
         throw new Error("Fehler beim Hinzufügen des Freundes zum Workspace");
+      } else {
+        getWorkspaceMembers()
       }
 
     } catch (error) {
@@ -259,15 +290,55 @@ const sendTodo = async () => {
           Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
-          workspaceId,
-          username,
+          "workspace_id": workspaceId,
+          "username": username
         }),
       });
+
+      if (!response.ok) {
+        throw new Error("Fehler beim Hinzufügen des Freundes zum Workspace");
+      } else {
+        getWorkspaceMembers()
+      }
+
+
     } catch (error) {
       alert("Fehler beim Kicken des Users: " + error);
       console.error("Fehler beim Kicken des Users:", error);
     }
   }
+
+  const switchRole = async (member: any) => {
+    const newRole = member.role === "ADMIN" ? "MEMBER" : "ADMIN";
+  
+    try {
+      const response = await fetch("http://localhost:3000/chat/changeMemberRole", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          workspace_id: workspaceId,
+          username: member.username,
+          newRole: newRole,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Fehler beim Ändern der Rolle");
+      } else {
+        getWorkspaceMembers()
+      }
+      
+    } catch (error) {
+      alert("Fehler beim Ändern der Rolle: " + error);
+      console.error(error);
+    }
+  };
+  
+
+  
 
   const leaveWorkspace = () => {
     if (ws.current) {
@@ -279,33 +350,59 @@ const sendTodo = async () => {
   }
 
   const openCollaborators = () => {
-    setFriendsWindow(true);
+    setMembersWindow(true);
   }
 
 
   return (
     <>
-      {friendsWindow ? (
+      <div className="sidebarContainer">
+        <div className="sidebarHeader">
+            <h3 className="sidebarTitle">Freunde</h3>
+            <br />
+            <h4 className="sidebarText">Klicken zum Hinzufügen</h4>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {friends
+            .filter(friend => !members.some(member => member.id === friend.id))
+            .map((friend) => (
+              <Button
+                onPress={() => addFriendToWorkspace(friend.id, workspaceId)}
+                key={friend.username}
+                className="sidebarButton"
+                style={{ marginTop: '0.5rem' }}
+              >
+                {friend.username}
+                <ArrowRight />
+              </Button>
+          ))}
+        </div>
+      </div>
+      {membersWindow ? (
         <>
-          <Button className="cancelButton" onPress={() => setFriendsWindow(false)}>
-            Schließen
-          </Button>
+          <Button className="cancelButton" onPress={() => setMembersWindow(false)}>Schließen</Button>
           <div className="friendsWindow">
             <h2 className="createTitle">Mitgliederverwaltung</h2>
             <div className="customTableWrapper">
               <Table className="customTable">
                 <TableHeader>
                   <TableColumn>Freund</TableColumn>
+                  <TableColumn>Rolle</TableColumn>
                   <TableColumn>Aktionen</TableColumn>
                 </TableHeader>
                 <TableBody>
-                  {friends.map((friend) => (
-                    <TableRow key={friend.id}>
-                      <TableCell>{friend.username}</TableCell>
+                  {members.map((member) => (
+                    <TableRow key={member.id}>
+                      <TableCell>{member.username}</TableCell>
+                      <TableCell>{member.role}</TableCell>
                       <TableCell>
-                        <Button className="createButton" onPress={() => addFriendToWorkspace(friend.id, workspaceId)}>Hinzufügen</Button>
-                        <Button className="cancelButton" onPress={() => kickUser(friend.username, workspaceId)}>Kicken</Button>
-                        <Button className="createButton">Rolle wechseln</Button>
+                      <Button 
+                        className="createButton" 
+                        onPress={() => switchRole(member)}
+                      >
+                        {member.role === "ADMIN" ? "Zu MEMBER machen" : "Zu ADMIN machen"}
+                      </Button>
+                        <Button className="cancelButton" onPress={() => kickUser(member.username, workspaceId)}>Kicken</Button>
                       </TableCell>
                     </TableRow>
                   ))}

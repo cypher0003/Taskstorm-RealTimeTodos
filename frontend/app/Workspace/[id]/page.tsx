@@ -9,8 +9,8 @@ export default function WorkspacePage() {
   console.log(id);
 
   return (
-      <Workspace 
-        workspaceId={workspaceId} 
+      <Workspace
+        workspaceId={id} 
       />
     );
 }

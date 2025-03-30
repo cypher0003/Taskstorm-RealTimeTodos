@@ -5,7 +5,7 @@ export default function Home() {
 
   return (
     <>
-        <h1>Willkommen bei TaskStorm</h1>
+        <h1 className="sidebarTitle">Willkommen bei TaskStorm</h1>
     </>
   );
 }
