@@ -17,7 +17,7 @@ export async function sendToRedis(db, redis, workspaceId, creator_id, todo) {
     `).run(task.id, task.workspace_id, task.creator_id, task.todo, task.todoStatus, task.timestamp);
 
     redis.publish(channel, JSON.stringify(task));
-    console.log("✅ To-Do gesendet & gespeichert.");
+    console.log("To-Do gesendet & gespeichert.");
 
     const members = await getAllMembersOfAWorkspace(db, workspaceId)
     for (const member of members)
@@ -33,7 +33,7 @@ export async function getTodosOfWorkspace(db, workspaceId, limit = 10000) {
         return cachedTodos;
     }
 
-    console.log(`🔍 Lade To-Dos aus der Datenbank für Workspace ${workspaceId}`);
+    console.log(`Lade To-Dos aus der Datenbank für Workspace ${workspaceId}`);
     const todos = db.prepare(`
         SELECT id, workspace_id, creator_id, todo, status, timestamp
         FROM Todo
@@ -51,7 +51,7 @@ export async function sendCachedTodos(redis, workspaceId, userId, wsConnection) 
 
     cachedTasks.forEach(task => {
         wsConnection.send(task);
-        console.log(`📤 Gesendete ungelesene Nachricht für User ${userId} in Workspace ${workspaceId}:`, task);
+        console.log(`Gesendete ungelesene Nachricht für User ${userId} in Workspace ${workspaceId}:`, task);
     });
 
     await redis.del(cacheKey);  // Nur diesen User-Cache löschennicht für andere Nutzer
@@ -159,7 +159,7 @@ export async function getAllMembersOfAWorkspace(db, workspace_id) {
     console.log(`Lade Mitglieder von Workspace ${workspace_id}`);
     const cachedMembers = await getCachedWorkspaceMembers(workspace_id);
     if (cachedMembers.length > 0) {
-        console.log(`⚡ Mitglieder aus Cache geladen für Workspace ${workspace_id}`);
+        console.log(`Mitglieder aus Cache geladen für Workspace ${workspace_id}`);
         return cachedMembers;
     }
 
@@ -167,7 +167,7 @@ export async function getAllMembersOfAWorkspace(db, workspace_id) {
 }
 
 export async function updateTodo(db, redis, todoId, newText = null, newStatus = null) {
-    console.log(`🔄 Aktualisiere To-Do: ${todoId}`);
+    console.log(`Aktualisiere To-Do: ${todoId}`);
 
     // Nur das ändern, was übergeben wurde
     const updateQuery = db.prepare(`
@@ -213,7 +213,7 @@ export async function deleteTodo(db, redis, todoId) {
 
 export async function findAllWorkspacesForAUser(db, userId) {
     try {
-        console.log(`🔍 Lade Workspaces für User ${userId}`);
+        console.log(`Lade Workspaces für User ${userId}`);
 
         const result = db.prepare(`
             SELECT DISTINCT w.id, w.name, w.admin_id, w.creation_date

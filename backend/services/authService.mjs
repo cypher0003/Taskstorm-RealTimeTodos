@@ -32,12 +32,12 @@ export async function authService(fastify, options) {
         }
 
         try {
-            console.log("📌 Erstelle neuen Benutzer...");
+            console.log("Erstelle neuen Benutzer...");
             const userResult = await createUser(fastify.db, fields.username, fields.email, fields.password, profilePicturePath);
-            console.log("✅ Neuer Benutzer erstellt:", userResult);
+            console.log("Neuer Benutzer erstellt:", userResult);
             reply.code(201).send({ user: userResult });
         } catch (error) {
-            console.error("❌ Fehler beim Erstellen des Benutzers:", error.message);
+            console.error("Fehler beim Erstellen des Benutzers:", error.message);
             reply.code(400).send({ error: error.message });
         }
     });
@@ -45,15 +45,15 @@ export async function authService(fastify, options) {
     fastify.post("/login", async (request, reply) => {
         const { email, password } = request.body;
         try {
-            console.log("🔍 Suche Benutzer mit E-Mail:", email);
+            console.log("Suche Benutzer mit E-Mail:", email);
             const user = await getUserByEmail(fastify.db, email);
 
             if (user.password !== sha256(password)) {
-                return reply.code(401).send({ error: "❌ Ungültige E-Mail oder Passwort" });
+                return reply.code(401).send({ error: "Ungültige E-Mail oder Passwort" });
             }
 
             await setUserOnline(user.id);
-            console.log("✅ Benutzer ist online");
+            console.log("Benutzer ist online");
 
             const token = fastify.jwt.sign({
                 id: user.id,
@@ -65,7 +65,7 @@ export async function authService(fastify, options) {
 
             reply.send({ token });
         } catch (error) {
-            console.error("❌ Fehler beim Login:", error.message);
+            console.error("Fehler beim Login:", error.message);
             reply.code(401).send({ error: error.message });
         }
     });
@@ -74,9 +74,9 @@ export async function authService(fastify, options) {
         try {
             const userId = request.user.id;
             await setUserOffline(userId);
-            reply.send({ message: "✅ Logout erfolgreich" });
+            reply.send({ message: "Logout erfolgreich" });
         } catch (error) {
-            reply.code(500).send({ error: "❌ Fehler beim Logout" });
+            reply.code(500).send({ error: "Fehler beim Logout" });
         }
     });
 }
