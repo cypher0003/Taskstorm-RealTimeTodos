@@ -39,7 +39,6 @@ export async function getTodosOfWorkspace(db, workspaceId, limit = 10000) {
         FROM Todo
         WHERE workspace_id = ?
         ORDER BY timestamp DESC
-        LIMIT ?
     `).all(workspaceId, limit);
 
     await cacheWorkspaceTodos(workspaceId, todos);
