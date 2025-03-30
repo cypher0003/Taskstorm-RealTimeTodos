@@ -17,7 +17,7 @@ export async function sendToRedis(db, redis, workspaceId, creator_id, todo) {
     `).run(task.id, task.workspace_id, task.creator_id, task.todo, task.todoStatus, task.timestamp);
 
     redis.publish(channel, JSON.stringify(task));
-    console.log("✅ To-Do gesendet & gespeichert.");
+    console.log("To-Do gesendet & gespeichert.");
 
     const members = await getAllMembersOfAWorkspace(db, workspaceId)
     for (const member of members)
@@ -111,9 +111,9 @@ export async function createWorkspace(db, name, admin_id) {
         console.log("insertion done")
 
         return newWorkspace
-        }
+}
 
-        export async function addFriendToWorkspace(db, id, workspace_id, user_id) {
+export async function addFriendToWorkspace(db, id, workspace_id, user_id) {
             try {
               
               const existingMember = db.prepare(`
@@ -154,13 +154,13 @@ export async function createWorkspace(db, name, admin_id) {
               console.error(`Fehler beim Hinzufügen von Benutzer ${user_id} zu Workspace ${workspace_id}:`, err.message);
               throw err;
             }
-          }
+}
 
 export async function getAllMembersOfAWorkspace(db, workspace_id) {
     console.log(`Lade Mitglieder von Workspace ${workspace_id}`);
     const cachedMembers = await getCachedWorkspaceMembers(workspace_id);
     if (cachedMembers.length > 0) {
-        console.log(`⚡ Mitglieder aus Cache geladen für Workspace ${workspace_id}`);
+        console.log(`Mitglieder aus Cache geladen für Workspace ${workspace_id}`);
         return cachedMembers;
     }
 

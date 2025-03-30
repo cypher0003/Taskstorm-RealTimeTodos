@@ -4,7 +4,7 @@ import { redisPublisher } from "./redis.mjs";
 
 const filePath = 'backend/database/database.db';
 
-// 🛠️ Tabellen mit `updated_at` für bessere Synchronisation
+//Tabellen mit `updated_at` für bessere Synchronisation
 const createUserTableStatement = `
     CREATE TABLE IF NOT EXISTS Users (
       id TEXT PRIMARY KEY,

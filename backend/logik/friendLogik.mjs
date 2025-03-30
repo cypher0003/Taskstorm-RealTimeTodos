@@ -9,7 +9,7 @@ export async function sendFriendRequest(db, currentUser, targetUser) {
         }
 
         const targetFriend = await getUserByUsername(db, targetUser);
-        console.log(`📌 Sende Freundschaftsanfrage an ${targetFriend.username}`);
+        console.log(`Sende Freundschaftsanfrage an ${targetFriend.username}`);
 
         const checkStmt = db.prepare(`
             SELECT * FROM Friendships
@@ -26,7 +26,7 @@ export async function sendFriendRequest(db, currentUser, targetUser) {
       return "done"
         
     }catch (err) {
-        console.error("❌ Fehler beim Senden der Freundschaftsanfrage:", err.message);
+        console.error("Fehler beim Senden der Freundschaftsanfrage:", err.message);
         throw err;
     }}
 /**

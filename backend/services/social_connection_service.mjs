@@ -10,7 +10,7 @@ export async function social_connection_service(fastify, options) {
             const friendRequestResult = await sendFriendRequest(fastify.db, currentUser, username);
             reply.code(201).send({ friend: friendRequestResult });
         } catch (err) {
-            console.error("❌ Fehler beim Senden der Freundschaftsanfrage:", err.message);
+            console.error("Fehler beim Senden der Freundschaftsanfrage:", err.message);
             reply.code(400).send({ error: err.message });
         }
     });
@@ -22,7 +22,7 @@ export async function social_connection_service(fastify, options) {
             const decision = await answerRequest(fastify.db, currentUser, username, answer);
             reply.code(201).send({ friend: decision });
         } catch (err) {
-            console.error("❌ Fehler beim Beantworten der Freundschaftsanfrage:", err.message);
+            console.error("Fehler beim Beantworten der Freundschaftsanfrage:", err.message);
             reply.code(400).send({ error: err.message });
         }
     });
@@ -33,8 +33,8 @@ export async function social_connection_service(fastify, options) {
             const friends = await searchFriendsOfUser(fastify.db, currentUser.id);
             return reply.status(200).send(friends);
         } catch (error) {
-            console.error("❌ Fehler beim Abrufen der Freunde:", error);
-            return reply.status(500).send({ error: "❌ Interner Serverfehler" });
+            console.error("Fehler beim Abrufen der Freunde:", error);
+            return reply.status(500).send({ error: "Interner Serverfehler" });
         }
     });
 
